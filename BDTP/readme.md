@@ -59,4 +59,4 @@ ipfs daemon
 
 如有问题或合作需求，欢迎通过以下方式联系：
 
-- 邮箱：[2022024922@m.scnu.edu.cn](mailto:2022024922@m.scnu.edu.cn)
+- 邮箱：[hzhicheng@m.scnu.edu.cn](mailto:hzhicheng@m.scnu.edu.cn)
