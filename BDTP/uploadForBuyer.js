@@ -1,13 +1,3 @@
-/**
- * BDTP/uploadForBuyer.js
- *
- * 这个脚本用于:
- * 1. 读取 dataset_watermark.zip
- * 2. 上传到 IPFS，获取原始 CID
- * 3. 使用买家公钥加密该 CID
- * 4. 输出加密后的 CID
- */
-
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
