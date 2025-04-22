@@ -1,4 +1,4 @@
-<a href="./README.zh.md">中文版本 (Chinese Version)</a>
+<a href="./zh-CN.md">中文版本 (Chinese Version)</a>
 
 # BDTP — Blockchain Data Trading Platform
 
