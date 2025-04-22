@@ -1,4 +1,4 @@
-<a href = "./readme.md">English</a>
+<a href = "./readme.md">English Version</a>
 
 # BDTP：区块链数据交易平台（论文配套开源实现）
 
@@ -90,13 +90,23 @@ npm start
 
 ## 依赖环境
 
-- **硬件**：Apple M4 Pro / 48 GB RAM（论文实验配置）
-- **操作系统**：macOS Sequoia
-- **基础软件**  
-  Solidity 0.8.26、Foundry v0.2.0、Anvil v0.2.0、Node.js 22.14.0、Python 3.11.5、IPFS 0.33.2
-- **Python 包**：见 `requirements.txt`
+| 类别            | 版本（论文实验） |
+| --------------- | ---------------- |
+| 操作系统        | macOS Sequoia    |
+| 处理器          | Apple M4 Pro     |
+| Solidity        | 0.8.26           |
+| Foundry / Anvil | v0.2.0           |
+| Node.js         | 22.14.0          |
+| Python          | 3.11.5           |
+| IPFS            | 0.33.2           |
 
-> 重现环境：`pip install -r requirements.txt` + `npm install` + `forge install`。
+安装依赖：
+
+```bash
+pip install -r requirements.txt   # 安装 Python 包
+npm install --prefix frontend      # 安装前端依赖
+forge install                      # 安装 Solidity 库（可选）
+```
 
 ---
 
