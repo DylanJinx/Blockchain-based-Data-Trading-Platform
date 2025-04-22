@@ -84,7 +84,7 @@ npm start
 | Gas 消耗分析 | `python gas_cost_analysis.py`                                                                                              | 批量执行操作并输出 Gas 统计表               |
 | 查询工具     | `python get_listed_nfts.py` / `python get_nft_details.py <tokenId>`                                                        | 查看市场与单 NFT 信息                       |
 
-更详细的交互流程、泳道图与实验截图请见 **[docs/demo.md](docs/demo.md)**。
+更详细的交互流程、泳道图与实验截图请见 **[docs/demo.zh.md](docs/demo.zh.md)**。
 
 ---
 
