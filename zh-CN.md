@@ -21,7 +21,7 @@
 
 ## 系统架构
 
-![平台架构图](docs/img/architecture.png)
+![平台架构图](docs/imgs/architecture.png)
 
 系统分为四层：用户 → Agent → 链下脚本 → 链上合约（DataRegistration / DataTradingPlatform / EscrowDeposit）。
 
