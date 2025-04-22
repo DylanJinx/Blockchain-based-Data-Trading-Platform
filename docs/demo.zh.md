@@ -39,6 +39,12 @@ python deploy.py            # 生成 deploy_address.json
 
 # 1 功能一：登记数据集
 
+登记 `STL-10` 中关于 `airplane` 的原始数据集。
+
+![部署合约](imgs/2-function1-register-2.bmp)
+
+得到 `STL-10-airplane-original` cid 值为：`http://127.0.0.1:8080/ipfs/QmSFJ36fdoMZp8Kv9XsGWB6Jya3Hd1rkTzj8aUkwjtMvJQ`
+
 ---
 
 # 2 功能二：上/下架数据集
