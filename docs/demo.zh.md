@@ -22,6 +22,8 @@ npm install                  # 首次启动需要
 npm start
 ```
 
+---
+
 ## 1. 部署合约
 
 ![部署合约](imgs/1-deploy_contract.bmp)
@@ -30,3 +32,5 @@ npm start
 cd python_call_contract
 python deploy.py            # 生成 deploy_address.json
 ```
+
+---
