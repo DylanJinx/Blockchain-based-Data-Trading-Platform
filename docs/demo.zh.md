@@ -47,13 +47,13 @@ python deploy.py            # 生成 deploy_address.json
 
 ## 1.2 登记 `STL-10` 中关于 `airplane` 的转售数据集
 
-![部署合约](imgs/2-function1-register-resale.bmp)
+![部署合约](imgs/3-function1-register-resale.bmp)
 
 得到 `STL-10-airplane-resale` cid 值为：`http://127.0.0.1:8080/ipfs/QmQTqV7kHyGDfJg64HhDqkZ3KdgK7S2EgECiTKQubwFrJ9`
 
 ## 1.3 登记 `STL-10` 中关于 `airplane` 的相似但非转售数据集
 
-![部署合约](imgs/2-function1-register-non-resale.bmp)
+![部署合约](imgs/4-function1-register-non-resale.bmp)
 
 得到 `STL-10-airplane-non-resale-but-similarity` cid 值为：`http://127.0.0.1:8080/ipfs/QmdvH8Fo65wBSisH2YQzmmZ4A2ztFDRByD3fr51h6wkEa5`
 
