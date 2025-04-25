@@ -35,6 +35,12 @@ cd python_call_contract
 python deploy.py            # 生成 deploy_address.json
 ```
 
+使用`metamask`钱包，将`anvil`给出的帐户赋予角色：  
+![account](imgs/account.bmp)
+
+将本地`anvil`启动的私链放入到`metamask`中：  
+![internet](imgs/internet.png)
+
 ---
 
 # 1 功能一：登记数据集
@@ -44,6 +50,12 @@ python deploy.py            # 生成 deploy_address.json
 ![部署合约](imgs/2-function1-register-2.bmp)
 
 得到 `STL-10-airplane-original` cid 值为：`http://127.0.0.1:8080/ipfs/QmSFJ36fdoMZp8Kv9XsGWB6Jya3Hd1rkTzj8aUkwjtMvJQ`
+
+使用`owner1`帐户登记`STL-10-airplane-original`数据集：
+
+![登记stl-10-original](imgs/1-function1-resgister-original-2.bmp)
+
+可以使用`metamask`进行转帐；也可以使用命令行转帐：`cast send 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --value 3ether --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url http://127.0.0.1:8545`
 
 ## 1.2 登记 `STL-10` 中关于 `airplane` 的转售数据集
 

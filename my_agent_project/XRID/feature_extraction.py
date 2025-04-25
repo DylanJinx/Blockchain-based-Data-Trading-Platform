@@ -507,7 +507,6 @@ def run_feature_comparison(dataset_dir, suspicion_dir=None):
         neg_df = pd.read_csv(negative_csv_path)
 
         # 2) 让列顺序与 comparison_results.csv 一致
-        #    这里假设两份 CSV 的列名完全相同，只是顺序不同；否则需做更多容错处理
         neg_df = neg_df[column_order]
 
         # 3) 以追加模式写入 comparison_results.csv，不写入表头 (header=False)

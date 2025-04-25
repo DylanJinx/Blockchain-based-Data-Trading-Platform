@@ -1,0 +1,30 @@
+# NFT铸造日志
+
+--- 新铸造请求 http://127.0.0.1:8080/ipfs/QmSFJ36fdoMZp8Kv9XsGWB6Jya3Hd1rkTzj8aUkwjtMvJQ 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc (会话ID: 1745556929) ---
+注册NFT的用户地址: 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc
+
+===== 场景：用户 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC 想要登记数据集（NFT），CID = 'http://127.0.0.1:8080/ipfs/QmSFJ36fdoMZp8Kv9XsGWB6Jya3Hd1rkTzj8aUkwjtMvJQ' =====
+
+需要用户转 3 ETH 到 Agent: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+等待用户转账...
+
+{"status": "waiting_for_transfer", "message": "\u8bf7\u8f6c 3 ETH \u5230\u4ee5\u4e0b\u5730\u5740", "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "required_eth": 3}
+开始轮询区块，以查找 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC -> Agent 的 3 ETH 交易。需要的金额(wei): 3000000000000000000
+当前区块高度: 8，将从此开始监听新区块
+检查区块 8...
+仍在等待转账... 已等待: 0秒, 剩余: 299秒
+仍在等待转账... 已等待: 10秒, 剩余: 289秒
+仍在等待转账... 已等待: 20秒, 剩余: 279秒
+仍在等待转账... 已等待: 30秒, 剩余: 269秒
+仍在等待转账... 已等待: 40秒, 剩余: 259秒
+仍在等待转账... 已等待: 50秒, 剩余: 249秒
+仍在等待转账... 已等待: 60秒, 剩余: 239秒
+检查区块 9...
+在区块 9 找到匹配交易，hash=c44671cf53dd7f2c372ec4aeab78098c43b84059a22fce1e7318e65ab3ab80b5
+确认收到来自用户的 3 ETH，交易哈希: c44671cf53dd7f2c372ec4aeab78098c43b84059a22fce1e7318e65ab3ab80b5
+
+=== 调用 DataRegistration.registerData(http://127.0.0.1:8080/ipfs/QmSFJ36fdoMZp8Kv9XsGWB6Jya3Hd1rkTzj8aUkwjtMvJQ, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC)，附带 3 ETH ===
+registerData() 交易已上链，hash = 3d52ebaa22e568052c751957037a6210a5cdd35d92c3744f1aae7ba2e6ad2514
+
+=== 登记成功！tokenId=1, dataOwner=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC ===
+{"status": "success", "message": "\u6570\u636e\u96c6\u767b\u8bb0\u6210\u529f\uff01", "token_id": "1", "data_owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", "tx_hash": "3d52ebaa22e568052c751957037a6210a5cdd35d92c3744f1aae7ba2e6ad2514"}

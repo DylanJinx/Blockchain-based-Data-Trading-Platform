@@ -1,8 +1,8 @@
 data/
 features/feature_buy(old).py
-features/mint_*.log
-features/mint_status_*.json
-logs/
+# features/mint_*.log
+# features/mint_status_*.json
+# logs/
 status/
 agent.py
 agent_only_xrid.py
