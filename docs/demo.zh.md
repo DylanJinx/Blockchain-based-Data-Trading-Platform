@@ -47,6 +47,8 @@ python deploy.py            # 生成 deploy_address.json
 
 登记数据集泳道图：![登记数据集泳道图](imgs/登记数据集.bmp)
 
+日志可以在`my_agent_project/features/mint_nft.log`中查看。
+
 ## 1.1 登记 `STL-10` 中关于 `airplane` 的原始数据集
 
 ![](imgs/2-function1-register-2.bmp)
@@ -58,8 +60,6 @@ python deploy.py            # 生成 deploy_address.json
 ![登记stl-10-original](imgs/2-function1-resgister-original-2.bmp)
 
 可以使用`metamask`进行转帐；也可以使用命令行转帐：`cast send 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --value 3ether --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url http://127.0.0.1:8545`
-
-日志可以在`my_agent_project/features/mint_nft.log`中查看。
 
 ## 1.2 登记 `STL-10` 中关于 `airplane` 的转售数据集
 
@@ -78,6 +78,12 @@ python deploy.py            # 生成 deploy_address.json
 ![](imgs/4-function1-register-non-resale.bmp)
 
 得到 `STL-10-airplane-non-resale-but-similarity` cid 值为：`http://127.0.0.1:8080/ipfs/QmdvH8Fo65wBSisH2YQzmmZ4A2ztFDRByD3fr51h6wkEa5`
+
+使用`owner3`帐户登记`STL-10-airplane-non-resale-but-similarity`数据集：
+
+![登记stl-10-non-resale-but-similarity](imgs/4-function1-register-non-resale-2.bmp)
+
+可以使用`metamask`进行转帐；也可以使用命令行转帐：`cast send 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --value 3ether --private-key 0x92db14e403b83dfe3df233f83dfa3a0d7096f21ca9b0d6d6b8d88b2b4ec1564e --rpc-url http://127.0.0.1:8545`
 
 ---
 
