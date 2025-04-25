@@ -69,7 +69,7 @@ python deploy.py            # 生成 deploy_address.json
 
 使用`owner2`帐户登记`STL-10-airplane-resale`数据集：
 
-![登记stl-10-resale](imgs/3-function1-resgister-resale-2.bmp)
+![登记stl-10-resale](imgs/3-function1-register-resale-2.bmp)
 
 可以使用`metamask`进行转帐；也可以使用命令行转帐：`cast send 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --value 3ether --private-key 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a --rpc-url http://127.0.0.1:8545`
 
