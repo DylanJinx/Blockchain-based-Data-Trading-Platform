@@ -57,6 +57,8 @@ python deploy.py            # 生成 deploy_address.json
 
 可以使用`metamask`进行转帐；也可以使用命令行转帐：`cast send 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --value 3ether --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url http://127.0.0.1:8545`
 
+日志可以在`my_agent_project/features/mint_nft.log`中查看。
+
 ## 1.2 登记 `STL-10` 中关于 `airplane` 的转售数据集
 
 ![部署合约](imgs/3-function1-register-resale.bmp)

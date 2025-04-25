@@ -94,7 +94,7 @@ Open <http://localhost:3000> in your browser to access the marketplace UI.
 | **Gas Analytics**        | `python gas_cost_analysis.py`                                                                                                | Batch‑executes flows, outputs gas table        |
 | **Market Queries**       | `python get_listed_nfts.py`  <br>`python get_nft_details.py <tokenId>`                                                       | Show all listings or one NFT                   |
 
-Full walkthrough with screenshots ➜ **`docs/demo.zh.md`**.
+Full walkthrough with screenshots ➜ **[docs/demo.zh.md](docs/demo.zh.md)**.
 
 ---
 
