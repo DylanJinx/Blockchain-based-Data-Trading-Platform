@@ -89,6 +89,19 @@ python deploy.py            # 生成 deploy_address.json
 
 # 2 功能二：上/下架数据集
 
+登记数据集泳道图：![上下架数据集泳道图](imgs/上_下架数据集.bmp)
+
+使用`owner1`、`owner2`、`owner3`分别上架其对应的数据集。
+
+![](imgs/5-function2-list-1.bmp)
+
+![](imgs/6-function2-list-2.bmp)
+
+![](imgs/7-function2-list-3.bmp)
+
+市场界面：
+![](imgs/8-市场界面.bmp)
+
 ---
 
 # 3 功能三：购买数据集
