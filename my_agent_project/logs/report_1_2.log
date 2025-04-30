@@ -1,0 +1,52 @@
+开始举报检测: token_id_a=1, token_id_b=2, user=0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc
+时间: 2025-04-30 11:18:33
+
+开始从 IPFS 下载: cid=Qmdf1q4XorJmixhNAioH1EYVposcno5XbUH53aed6nDNu1
+已成功下载到本地文件: ../my_agent_project/XRID/original_dataset.zip
+开始从 IPFS 下载: cid=QmSPw6BTYXTmkNaputUSbTQyFFaCLZFCRQSzrmnpFErizq
+已成功下载到本地文件: ../my_agent_project/XRID/suspicion_dataset.zip
+2025-04-30 11:18:34,315 - INFO - 开始执行命令: python XRID.py --transform_dir ./original_dataset, cwd=XRID
+[Step] 开始对 ./original_dataset 中的图像进行六种变换...
+[Done] 六种变换处理完成。
+
+2025-04-30 11:18:43,306 - INFO - 命令执行成功: python XRID.py --transform_dir ./original_dataset
+2025-04-30 11:18:43,306 - INFO - 开始执行命令: python XRID.py --original_dir ./original_dataset, cwd=XRID
+[Step] 对 ./original_dataset 执行特征提取与相似度计算(情况1)...
+[Done] 特征提取与相似度对比阶段完成。
+2025-04-30 11:18:45,224 - INFO - 命令执行成功: python XRID.py --original_dir ./original_dataset
+2025-04-30 11:18:45,224 - INFO - 开始执行命令: python XRID.py --original_dir ./original_dataset --suspicion_dir ./suspicion_dataset, cwd=XRID
+[Step] 正在比较 ./original_dataset 与 ./suspicion_dataset ...
+[Done] 已完成对比怀疑数据集。
+2025-04-30 11:18:47,059 - INFO - 命令执行成功: python XRID.py --original_dir ./original_dataset --suspicion_dir ./suspicion_dataset
+2025-04-30 11:18:47,059 - INFO - 开始执行命令: python XRID.py --predict_and_finetune, cwd=XRID
+[Step] Running predict_and_finetune.py ...
+2025-04-30 11:18:48,908 - INFO - 命令执行成功: python XRID.py --predict_and_finetune
+tokenIdA=1 与 tokenIdB=2 都在售(Listed).
+等待 0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc -> 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 2.0 ETH 转账...
+在区块 21 找到匹配交易, hash=b5bfe79ceed06979f2d25d171cd8a1962c6af0e54769b9a50435f689f9e07203
+已检测到 您->Agent 2.0 ETH, txHash=b'\xb5\xbf\xe7\x9c\xee\xd0iy\xf2\xd2]\x17\x1c\xd8\xa1\x96,j\xf0\xe5Gi\xb9\xa5\x045\xf6\x89\xf9\xe0r\x03'
+originalTokenId=1, suspicionTokenId=2
+=== 以Agent informerDeposit(informer=0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc, original=1, suspicion=2, 2ETH) ===
+informerDeposit 交易哈希: a4feb9f2dcba2c4f9a353ccc97a55d4d58b21bb36fd4c94bd1075e65e65549b4
+InformerDeposited => informer=0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc, original=1, suspicion=2, amount=2 ETH
+举报保证金提交成功! 接下来进行转售检测...
+
+===== 开始下载 & 检测 originalTokenId / suspicionTokenId =====
+tokenId=1, tokenURI=http://127.0.0.1:8080/ipfs/QmSFJ36fdoMZp8Kv9XsGWB6Jya3Hd1rkTzj8aUkwjtMvJQ
+解密得到 raw_cid=Qmdf1q4XorJmixhNAioH1EYVposcno5XbUH53aed6nDNu1
+已下载到 ../my_agent_project/XRID/original_dataset.zip
+当前目录: /Users/dylan/Code_Projects/Python_Projects/image_similarity/python_call_contract
+解压完成 => ../my_agent_project/XRID/original_dataset
+已删除: ../my_agent_project/XRID/original_dataset/__MACOSX
+已移动并删除子文件夹: ../my_agent_project/XRID/original_dataset/stl-10-airplane
+tokenId=2, tokenURI=http://127.0.0.1:8080/ipfs/QmQTqV7kHyGDfJg64HhDqkZ3KdgK7S2EgECiTKQubwFrJ9
+解密得到 raw_cid=QmSPw6BTYXTmkNaputUSbTQyFFaCLZFCRQSzrmnpFErizq
+已下载到 ../my_agent_project/XRID/suspicion_dataset.zip
+当前目录: /Users/dylan/Code_Projects/Python_Projects/image_similarity/python_call_contract
+解压完成 => ../my_agent_project/XRID/suspicion_dataset
+已删除: ../my_agent_project/XRID/suspicion_dataset/__MACOSX
+已移动并删除子文件夹: ../my_agent_project/XRID/suspicion_dataset/resale-stl-10-airplane
+数据集 original_dataset 与 suspicion_dataset 确实存在转售行为。
+XRID结果: 存在转售行为 => 举报成立, 准备调用 claimInformerSuccess ...
+claimInformerSuccess 调用失败: ('web3.py only accepts checksum addresses. The software that gave you this non-checksum address should be considered unsafe, please file it as a bug on their platform. Try using an ENS name instead. Or, if you must accept lower safety, use Web3.to_checksum_address(lower_case_address).', '0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc')
+==== 举报 & 检测 流程完毕 ====

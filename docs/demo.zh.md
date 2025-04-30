@@ -118,6 +118,18 @@ python deploy.py            # 生成 deploy_address.json
 使用 `BDTP/decryptCidWithPrivateKey.js` 解密得到数据集的 CID 值：
 ![](imgs/11-function3-buy-decryptCid.bmp)
 
+日志可以在`my_agent_project/logs/buy_nft.log`中查看。
+
 ---
 
 # 4 功能四：举报数据集
+
+举报转售泳道图：![举报转售泳道图](imgs/举报转售行为.bmp)
+
+举报成功：
+![](imgs/13-function4-inform-1.bmp)
+
+可以使用`metamask`进行转帐；也可以使用命令行转帐：`cast send 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --value 2ether --private-key 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba --rpc-url http://127.0.0.1:8545`
+
+举报失败：
+![](imgs/14-function4-inform-2.bmp)
