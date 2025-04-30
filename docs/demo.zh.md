@@ -106,6 +106,18 @@ python deploy.py            # 生成 deploy_address.json
 
 # 3 功能三：购买数据集
 
+购买数据集泳道图：![购买数据集泳道图](imgs/购买数据集.bmp)
+
+![](imgs/10-function3-buy-1.bmp)
+
+可以使用`metamask`进行转帐；也可以使用命令行转帐：`cast send 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --value 1ether --private-key 0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6 --rpc-url http://127.0.0.1:8545`
+
+购买者获得私钥：
+![](imgs/9-private_key.bmp)
+
+使用 `BDTP/decryptCidWithPrivateKey.js` 解密得到数据集的 CID 值：
+![](imgs/11-function3-buy-decryptCid.bmp)
+
 ---
 
 # 4 功能四：举报数据集
