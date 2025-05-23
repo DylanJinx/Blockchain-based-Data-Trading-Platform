@@ -42,3 +42,47 @@ NFTPurchased => operator=0x70997970C51812dc3A010C7d01b50e0d17dc79C8, tokenId=1, 
  [92m=== purchaseNFT 成功, 您已获得访问权. ===[0m
 ===== 购买流程成功完成 =====
 最终加密CID: Ax3ztXCZaNI0hnvn5XRiUufRxsJH4pBZsxqa79PM91lmdWeo7O2QT4gMQxytpdYPYAhEwWcHdCaeoPqao5RhV7KaM/6pc+yeQDHQ96lsVVws+TTEMXfKClWYpXL2jMalsaHm9hkzD2NKLbV4UHxHVeYiKLKfsGZLtfKOjTmzEO31VO0hjCFuvfp2aLlvsW11OlLsfrev7FVhEntvyS/ZFIDmhqzIUcGqhzI1EOl6mHU4zKBidVjzkPlOgOqT9bwzrLgRAcmPjTiz3t7857fKHgLVDldOeUb7PIguFtLKF6Z6YB1cndc2vhaOAGpGCr0XtbaOdSLvpKx/Kt2tvM0muw==
+
+
+===== 新购买流程开始: 2025-05-23 16:11:38 =====
+tokenId=1, buyerAddr=0x90f79bf6eb2c4f870365e785982e1f101e93b906
+Check listing 输出:
+ListingStatus=Listed, price=1
+metadataURL=http://127.0.0.1:8080/ipfs/Qme9AYL9az3UcbnynmeZDv7NgKWBwXHuKNwkdBeci3Wyxm
+请求转账: 1.0 ETH 到 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+在历史区块 12 找到匹配交易，hash=0974d35b01950295e20a5b476d7200baa6291202f6cc0c198886c00287d52f4e
+加密的 zip_cid=kHMC7jzAcPQgzh9hspSI09KhpbMIcRfMRCnVUDFL+nf/eOmFwnBbHQO79q9/jpyZrU++bXuc92DpvMjQpeqG9Bt5lkwBHA6tAj9DKMDchGhPH7UJZk1X6zPdglT1cI2ThW2D4+pLoCG/sclYREF8lB6yqMF/E+qN8SIoqqADTVmYZfaIvrc8IDIPbTiNOWhA/YCDePjEg2wsN3KQD5hkJeF6Nag4k/qTECTuJEGyATrkIyAOl/3uH7TvGhjj4eZVMkJNjUxuVETgXELFTYaxkI3xFF0QAha+AtsTrxTo76Ow+0bx7lvnicCwZ3Khpmw6hfZUcwmfILaMZlFDyBfDdw==
+解密脚本输出:
+Decrypted CID: Qmdf1q4XorJmixhNAioH1EYVposcno5XbUH53aed6nDNu1
+已成功下载: CID=Qmdf1q4XorJmixhNAioH1EYVposcno5XbUH53aed6nDNu1 => /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/features/../data/dataset.zip
+水印生成完毕，已生成 dataset_watermark.zip
+[uploadForBuyer]输出:
+开始执行 uploadForBuyer.js 脚本
+使用公钥路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/temp_public_key.pem
+成功读取公钥，长度为 450 字符
+尝试读取的数据集路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/data/dataset_watermark.zip
+找到水印数据集文件，大小为 1197394 字节
+正在准备连接IPFS...
+成功连接到IPFS API
+正在读取水印数据集文件...
+上传数据集到IPFS (大小: 1197394 字节)...
+数据集上传成功，CID: QmbtpwBmMhTGJZLfvM7m2VPTv6FQgPzCEa4LwHczjP7QV4
+使用买家公钥加密CID...
+准备加密数据: QmbtpwBmMhTGJZLfvM7m2VPTv6FQgPzCEa4LwHczjP7QV4
+加密成功，结果长度: 344 字符
+
+===== Final Output =====
+rawCid=QmbtpwBmMhTGJZLfvM7m2VPTv6FQgPzCEa4LwHczjP7QV4
+encryptedCid=ghdg6vqJnBIbVAM84BwW5ocLwqBsiDqv0ICYWlld97szMlrrAwNIDB6V7JPi/pK25eb52bgNa/moqJ5Dkw+c7//Fjm0a4qPuEBAl/i+NGvjNhAjApboy2WVq3n/Yu4GaCSkKSMipby3SZ7pViDG/gOBj3BNl5sVTct/ZD/xySh5FVKKHuqTA6lPnc1Bqm1HE1JS04rh9P3SxTXzC5XXnxpfvMSpEZb2rWExf8pCzC5cIgXcvqIpg8GUsiJANbI1yuK+mu4c0E2t+17andXxMUXLdN3mMaNLaiUC3vvvCVNRJI7Gz9Hrv3ISWp1/rGufNXoWBP6rgnhceyoxacL7coQ==
+成功加密并上传, encryptedCid = ghdg6vqJnBIbVAM84BwW5ocLwqBsiDqv0ICYWlld97szMlrrAwNIDB6V7JPi/pK25eb52bgNa/moqJ5Dkw+c7//Fjm0a4qPuEBAl/i+NGvjNhAjApboy2WVq3n/Yu4GaCSkKSMipby3SZ7pViDG/gOBj3BNl5sVTct/ZD/xySh5FVKKHuqTA6lPnc1Bqm1HE1JS04rh9P3SxTXzC5XXnxpfvMSpEZb2rWExf8pCzC5cIgXcvqIpg8GUsiJANbI1yuK+mu4c0E2t+17andXxMUXLdN3mMaNLaiUC3vvvCVNRJI7Gz9Hrv3ISWp1/rGufNXoWBP6rgnhceyoxacL7coQ==
+购买输出: 开始轮询区块，查找 bob->0x70997970C51812dc3A010C7d01b50e0d17dc79C8 转账金额=1000000000000000000 wei
+在区块 12 找到匹配交易,hash=0974d35b01950295e20a5b476d7200baa6291202f6cc0c198886c00287d52f4e
+确认收到来自 0x90F79bf6EB2c4f870365E785982E1f101E93b906 的付款, 交易hash=0974d35b01950295e20a5b476d7200baa6291202f6cc0c198886c00287d52f4e
+
+=== 调用 purchaseNFT(tokenId=1, buyer=0x90F79bf6EB2c4f870365E785982E1f101E93b906, encCid=...) ===
+purchaseNFT 交易哈希: be35d302a956a070b8a4b9c9ace4a27ddb8e18368c74450f1283e1918727a41e
+NFTPurchased => operator=0x70997970C51812dc3A010C7d01b50e0d17dc79C8, tokenId=1, dataOwner=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC, ethPaid=1 ETH, encCid=ghdg6vqJnBIbVAM84BwW5ocLwqBsiDqv0ICYWlld97szMlrrAwNIDB6V7JPi/pK25eb52bgNa/moqJ5Dkw+c7//Fjm0a4qPuEBAl/i+NGvjNhAjApboy2WVq3n/Yu4GaCSkKSMipby3SZ7pViDG/gOBj3BNl5sVTct/ZD/xySh5FVKKHuqTA6lPnc1Bqm1HE1JS04rh9P3SxTXzC5XXnxpfvMSpEZb2rWExf8pCzC5cIgXcvqIpg8GUsiJANbI1yuK+mu4c0E2t+17andXxMUXLdN3mMaNLaiUC3vvvCVNRJI7Gz9Hrv3ISWp1/rGufNXoWBP6rgnhceyoxacL7coQ==
+
+ [92m=== purchaseNFT 成功, 您已获得访问权. ===[0m
+===== 购买流程成功完成 =====
+最终加密CID: ghdg6vqJnBIbVAM84BwW5ocLwqBsiDqv0ICYWlld97szMlrrAwNIDB6V7JPi/pK25eb52bgNa/moqJ5Dkw+c7//Fjm0a4qPuEBAl/i+NGvjNhAjApboy2WVq3n/Yu4GaCSkKSMipby3SZ7pViDG/gOBj3BNl5sVTct/ZD/xySh5FVKKHuqTA6lPnc1Bqm1HE1JS04rh9P3SxTXzC5XXnxpfvMSpEZb2rWExf8pCzC5cIgXcvqIpg8GUsiJANbI1yuK+mu4c0E2t+17andXxMUXLdN3mMaNLaiUC3vvvCVNRJI7Gz9Hrv3ISWp1/rGufNXoWBP6rgnhceyoxacL7coQ==

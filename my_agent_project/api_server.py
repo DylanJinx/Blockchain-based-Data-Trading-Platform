@@ -201,21 +201,115 @@ def api_register_data():
         return jsonify({"error": "无效的用户地址格式"}), 400
     
     try:
-        # 调用feature_register.py中的register_data函数
+        # 首先检查是否已有正在处理的请求（避免重复提交）
         logging.info(f"开始登记数据集，用户地址: {user_address}, 元数据URL: {metadata_url}")
-        register_data(metadata_url, user_address)  # 确保传递user_address参数
         
-        # 立即返回等待转账的状态
-        return jsonify({
-            "status": "waiting_for_transfer",
-            "message": "请转 3 ETH 到指定地址以完成登记",
-            "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-            "required_eth": 3
-        })
-    
+        # 创建日志目录（如果不存在）
+        logs_dir = os.path.join(os.path.dirname(__file__), "logs")
+        os.makedirs(logs_dir, exist_ok=True)
+        
+        # 创建会话ID和状态文件
+        session_id = int(time.time())
+        status_file_path = os.path.join(os.path.dirname(__file__), "features", f"mint_status_{session_id}.json")
+        
+        # 记录初始状态
+        status_data = {
+            "session_id": session_id,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "metadata_url": metadata_url,
+            "user_address": user_address,
+            "status": "initiated", 
+            "start_time": time.time()
+        }
+        
+        with open(status_file_path, "w") as f:
+            json.dump(status_data, f)
+            
+        # 调用feature_register.py中的register_data函数
+        try:
+            register_data(metadata_url, user_address)  # 确保传递user_address参数
+            
+            # 立即返回等待转账的状态
+            return jsonify({
+                "status": "waiting_for_transfer",
+                "message": "请转 3 ETH 到指定地址以完成登记",
+                "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+                "required_eth": 3,
+                "session_id": session_id
+            })
+            
+        except ValueError as e:
+            # 处理可能的水印检测错误
+            error_message = str(e)
+            logging.error(f"数据集登记失败（值错误）: {error_message}")
+            
+            # 更新状态文件
+            status_data["status"] = "failed"
+            status_data["error"] = error_message
+            status_data["end_time"] = time.time()
+            
+            with open(status_file_path, "w") as f:
+                json.dump(status_data, f)
+                
+            # 水印相关错误
+            if "检测到水印" in error_message:
+                return jsonify({
+                    "status": "error",
+                    "error_type": "watermark_detected",
+                    "message": error_message
+                }), 403  # 使用403 Forbidden状态码
+            else:
+                return jsonify({
+                    "status": "error",
+                    "message": error_message
+                }), 400
+                
+        except TimeoutError as e:
+            # 处理超时错误
+            error_message = str(e)
+            logging.error(f"数据集登记超时: {error_message}")
+            
+            # 更新状态文件
+            status_data["status"] = "timeout"
+            status_data["error"] = error_message
+            status_data["end_time"] = time.time()
+            
+            with open(status_file_path, "w") as f:
+                json.dump(status_data, f)
+                
+            return jsonify({
+                "status": "timeout",
+                "message": error_message
+            }), 408  # 使用408 Request Timeout状态码
+            
     except Exception as e:
         logging.error(f"数据集登记失败: {e}")
-        return jsonify({"error": str(e)}), 500
+        
+        # 尝试记录错误到状态文件（如果已创建）
+        if 'status_data' in locals() and 'status_file_path' in locals():
+            try:
+                status_data["status"] = "failed"
+                status_data["error"] = str(e)
+                status_data["end_time"] = time.time()
+                
+                with open(status_file_path, "w") as f:
+                    json.dump(status_data, f)
+            except Exception as file_e:
+                logging.error(f"无法更新状态文件: {file_e}")
+                
+        # 检查是否水印相关错误
+        error_message = str(e)
+        if "水印" in error_message or "watermark" in error_message.lower():
+            return jsonify({
+                "status": "error",
+                "error_type": "watermark_related",
+                "message": error_message
+            }), 403  # 水印错误使用403
+        
+        return jsonify({
+            "status": "error",
+            "message": error_message
+        }), 500
 
 @app.route('/api/list-nft', methods=['POST'])
 def api_list_nft():
@@ -383,8 +477,6 @@ def api_buy_nft():
         if os.path.exists(public_key_path):
             os.remove(public_key_path)
         return jsonify({"error": str(e)}), 500
-
-
 
 @app.route('/api/report-nft', methods=['POST'])
 def api_report_nft():
@@ -1301,31 +1393,51 @@ def check_watermark():
         import tempfile
         import os
         import subprocess
+        import time
         
         temp_dir = tempfile.mkdtemp()
         dataset_path = os.path.join(temp_dir, "dataset.zip")
         
+        # 记录检查开始时间
+        start_time = time.time()
+        logging.info(f"开始检查水印，数据集CID: {dataset_cid}, 元数据URL: {metadata_url}, 临时目录: {temp_dir}")
+        
         # 下载数据集
         try:
             download_cmd = ["node", "../BDTP/downloadFromIPFS.js", dataset_cid, dataset_path]
+            logging.info(f"执行下载命令: {download_cmd}")
+            # 添加下载超时，60秒
             subprocess.run(download_cmd, cwd="../BDTP", capture_output=True, check=True, timeout=60)
+            logging.info(f"下载完成，耗时: {time.time() - start_time:.2f}秒")
+        except subprocess.TimeoutExpired as e:
+            logging.error(f"下载数据集超时: {e}")
+            return jsonify({
+                "has_watermark": False,
+                "error": "下载数据集超时，请稍后重试",
+                "timeout": True
+            }), 408
         except Exception as e:
             logging.error(f"下载数据集失败: {e}")
             return jsonify({
                 "has_watermark": False,
-                "error": f"无法下载数据集: {str(e)}"
+                "error": f"无法下载数据集: {str(e)}",
+                "error_occurred": True
             })
         
-        # 检查水印
+        # 检查水印 - 修复路径问题并添加超时
         try:
-            watermark_cmd = ["python", "checkForWatermark.py", "--input", dataset_path, "-v"]
-            result = subprocess.run(watermark_cmd, cwd="../my_agent_project", capture_output=True, text=True)
+            # 注意：这里使用的是相对于 api_server.py 的路径
+            watermark_cmd = ["python", "features/checkForWatermark.py", "--input", dataset_path, "-v"]
+            logging.info(f"执行水印检测命令: {watermark_cmd}, 当前工作目录: {os.getcwd()}")
+            
+            # 添加120秒的超时控制
+            result = subprocess.run(watermark_cmd, capture_output=True, text=True, timeout=120)
             output = result.stdout.strip()
             
-            # 如果输出是"1"，表示检测到水印
-            has_watermark = output.strip() == "1"
+            logging.info(f"水印检测完成，耗时: {time.time() - start_time:.2f}秒, 返回值: {result.returncode}")
             
-            logging.info(f"水印检测结果: {output}, has_watermark={has_watermark}")
+            # 如果输出是"1"，表示检测到水印
+            has_watermark = output.strip().startswith("1")
             
             # 构建详细信息
             details = {}
@@ -1344,29 +1456,43 @@ def check_watermark():
                 "has_watermark": has_watermark,
                 "message": "检测到水印，该数据集可能是从其他地方购买并转售的" if has_watermark else "未检测到水印",
                 "details": details,
-                "raw_output": output
+                "raw_output": output,
+                "execution_time": f"{time.time() - start_time:.2f}秒"
             })
             
+        except subprocess.TimeoutExpired as e:
+            logging.error(f"检查水印超时: {e}")
+            return jsonify({
+                "has_watermark": False,
+                "error": "水印检测超时，可能是数据集过大或系统繁忙",
+                "timeout": True,
+                "execution_time": f"{time.time() - start_time:.2f}秒"
+            }), 408
         except Exception as e:
             logging.error(f"检查水印失败: {e}")
             return jsonify({
                 "has_watermark": False,
-                "error": f"检查水印失败: {str(e)}"
+                "error": f"检查水印失败: {str(e)}",
+                "error_occurred": True,
+                "execution_time": f"{time.time() - start_time:.2f}秒"
             })
         
     except Exception as e:
         logging.error(f"水印检查过程出错: {e}")
         return jsonify({
             "has_watermark": False,
-            "error": f"水印检查过程出错: {str(e)}"
+            "error": f"水印检查过程出错: {str(e)}",
+            "error_occurred": True
         }), 500
     finally:
         # 清理临时文件
         import shutil
         try:
-            shutil.rmtree(temp_dir)
-        except:
-            pass
+            if 'temp_dir' in locals() and os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+                logging.info(f"已清理临时目录: {temp_dir}")
+        except Exception as e:
+            logging.warning(f"清理临时目录失败: {e}")
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8765)

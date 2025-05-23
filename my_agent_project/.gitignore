@@ -7,3 +7,5 @@ status/
 agent.py
 agent_only_xrid.py
 XRID/processed_resale.py
+
+.DS_Store

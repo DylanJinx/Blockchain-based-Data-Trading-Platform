@@ -47,6 +47,8 @@ python deploy.py            # 生成 deploy_address.json
 
 登记数据集泳道图：![登记数据集泳道图](imgs/登记数据集.bmp)
 
+其中检测数据集中是否存在水印的功能会在“功能三：购买数据集”中演示。（因为购买数据集时，会嵌入唯一的$Hash_buy$，若有人将此数据集上传到平台，将会被检测出来）
+
 日志可以在`my_agent_project/features/mint_nft.log`中查看。
 
 ## 1.1 登记 `STL-10` 中关于 `airplane` 的原始数据集
@@ -119,6 +121,14 @@ python deploy.py            # 生成 deploy_address.json
 ![](imgs/11-function3-buy-decryptCid.bmp)
 
 日志可以在`my_agent_project/logs/buy_nft.log`中查看。
+
+## 3.1 登记购买过的数据集
+
+![](./imgs/15-function1-watermark.png)
+得到 `STL-10-airplane-watermark` cid 值为：`http://127.0.0.1:8080/ipfs/QmVgwCgeBvEMC2kDKdVpMRs82maYKohE9WmdF3X4XWS9mA`
+
+![](./imgs/16-function1-find-watermark.bmp)
+检测到水印，禁止登记此数据集。
 
 ---
 

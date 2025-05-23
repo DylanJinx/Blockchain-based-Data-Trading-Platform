@@ -135,7 +135,8 @@ def register_data(metadata_url: str, user_address: str = None):
         # 指定输入目录为刚解压的dataset文件夹
         wm_cmd = ["python", "features/checkForWatermark.py", "--input", dataset_folder, "--verbose"]
         logging.info(f"执行水印检测命令: {wm_cmd}")
-        wm_result = subprocess.run(wm_cmd, capture_output=True, text=True, check=True)
+        # 添加120秒的超时控制
+        wm_result = subprocess.run(wm_cmd, capture_output=True, text=True, check=True, timeout=120)
         wm_output = wm_result.stdout.strip()
         logging.info(f"水印检测脚本输出: {wm_output}")
 
@@ -144,19 +145,28 @@ def register_data(metadata_url: str, user_address: str = None):
         
         if result_line == "1":
             logging.warning("检测到水印，疑似转售行为，禁止铸造NFT")
-            print("检测到水印，数据疑似转售行为。禁止铸造NFT。")
-            return
+            error_msg = "检测到水印，数据疑似转售行为。禁止铸造NFT。"
+            print(error_msg)
+            raise ValueError(error_msg)  # 明确抛出异常
         elif result_line == "0":
             logging.info("未检测到水印，可以进行铸造NFT。")
         else:
             logging.warning(f"水印检测脚本返回未知值: {result_line}")
-            print("水印检测结果不明，暂不进行铸造。")
-            return
+            error_msg = "水印检测结果不明，暂不进行铸造。"
+            print(error_msg)
+            raise ValueError(error_msg)  # 同样抛出异常
+
+    except subprocess.TimeoutExpired as e:
+        logging.error(f"水印检测脚本执行超时: {e}")
+        error_msg = "水印检测超时，请稍后重试或联系管理员。"
+        print(error_msg)
+        raise TimeoutError(error_msg)  # 超时异常
 
     except subprocess.CalledProcessError as e:
         logging.error(f"水印检测脚本执行失败: {e}")
-        print("水印检测失败，无法判断是否能铸造。")
-        return
+        error_msg = f"水印检测失败，无法判断是否能铸造: {e}"
+        print(error_msg)
+        raise RuntimeError(error_msg)  # 执行错误异常
 
     # 5) 若通过水印检测 => 调用合约铸造脚本
     try:
