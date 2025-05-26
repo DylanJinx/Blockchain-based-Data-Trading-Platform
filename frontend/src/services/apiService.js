@@ -182,13 +182,20 @@ class ApiService {
   }
 
   // 检查转账状态
-  async checkTransfer(from_address, to_address, amount_eth) {
+  async checkTransfer(from_address, to_address, amount_eth, session_id = null) {
     try {
-      const response = await api.post("/check-transfer", {
+      const payload = {
         from_address,
         to_address,
         amount_eth,
-      });
+      };
+
+      // 如果提供了session_id，则包含在请求中
+      if (session_id) {
+        payload.session_id = session_id;
+      }
+
+      const response = await api.post("/check-transfer", payload);
       return response.data;
     } catch (error) {
       console.error("检查转账失败:", error);

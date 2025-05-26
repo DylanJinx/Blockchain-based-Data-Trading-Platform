@@ -9,3 +9,7 @@ agent_only_xrid.py
 XRID/processed_resale.py
 
 .DS_Store
+
+WATERMARK_FIX_SUMMARY.md
+
+XRID/original_dataset/

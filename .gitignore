@@ -7,3 +7,15 @@ binaryWatermark.py
 index.html
 
 .DS_Store
+
+ABCD_total_time/
+
+LSB_groth16/
+
+test_dataset/
+
+poweroftau_in_chrome.md
+poweroftau_integration_summary.md
+python_generate_poweroftau/
+temp_ptau/
+test_ptau_integration.py

@@ -3,15 +3,16 @@ import sys
 import json
 import re
 import flask
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import openai
 import subprocess
 import logging
-from features.feature_register import register_data
+from features.feature_register import register_data, start_nft_minting
 from features.feature_buy import buy_nft
 from features.feature_informer import report_nft
 from features.feature_resale import run_xrid_commands, interpret_results
+from features.poweroftau_generator import PowerOfTauGenerator, generate_ptau_for_dataset
 import requests
 import time
 
@@ -210,7 +211,10 @@ def api_register_data():
         
         # 创建会话ID和状态文件
         session_id = int(time.time())
-        status_file_path = os.path.join(os.path.dirname(__file__), "features", f"mint_status_{session_id}.json")
+        # 统一状态文件路径：保存在 my_agent_project/status/ 目录下
+        status_dir = os.path.join(os.path.dirname(__file__), "status")
+        os.makedirs(status_dir, exist_ok=True)
+        status_file_path = os.path.join(status_dir, f"register_status_{session_id}.json")
         
         # 记录初始状态
         status_data = {
@@ -227,9 +231,51 @@ def api_register_data():
             
         # 调用feature_register.py中的register_data函数
         try:
-            register_data(metadata_url, user_address)  # 确保传递user_address参数
+            result = register_data(metadata_url, user_address)  # 确保传递user_address参数
             
-            # 立即返回等待转账的状态
+            # 检查register_data的返回值
+            if isinstance(result, dict):
+                # 如果返回字典，说明有特殊情况（如检测到水印）
+                if result.get("status") == "copyright_violation":
+                    logging.info(f"检测到侵权行为，返回Powers of Tau贡献状态")
+                    return jsonify({
+                        "status": "copyright_violation",
+                        "message": result.get("message"),
+                        "background_message": result.get("background_message"),
+                        "requires_user_contribution": result.get("requires_user_contribution", False),
+                        "user_id": result.get("user_id"),
+                        "constraint_power": result.get("constraint_power"),
+                        "ptau_info": result.get("ptau_info"),
+                        "zk_proof_result": result.get("zk_proof_result")
+                    })
+                elif result.get("status") == "no_watermark_transfer_required":
+                    # 无水印，需要转账3 ETH
+                    logging.info(f"数据集未检测到水印，需要用户转账3 ETH")
+                    
+                    # 将必要信息保存到状态文件，供转账确认后使用
+                    status_data["result_type"] = "no_watermark"
+                    status_data["ptau_info"] = result.get("ptau_info", {})
+                    status_data["transfer_required"] = True
+                    
+                    with open(status_file_path, "w") as f:
+                        json.dump(status_data, f)
+                    
+                    return jsonify({
+                        "status": "waiting_for_transfer",
+                        "message": result.get("message", "请转 3 ETH 到指定地址以完成登记"),
+                        "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+                        "required_eth": 3,
+                        "session_id": session_id
+                    })
+                elif result.get("status") == "processing":
+                    # 其他处理中状态
+                    return jsonify(result)
+                else:
+                    # 其他未知状态，按正常流程处理
+                    logging.warning(f"register_data返回了未知状态: {result}")
+            
+            # 如果没有返回特殊状态，继续正常的转账等待流程（这个分支现在应该不会被触发）
+            logging.warning("register_data未返回预期的字典状态，使用默认转账流程")
             return jsonify({
                 "status": "waiting_for_transfer",
                 "message": "请转 3 ETH 到指定地址以完成登记",
@@ -906,14 +952,80 @@ def check_register_status():
                 "tx_hash": tx_hash
             })
         
-        # 4. 如果找到了转账，但没有匹配的NFT，返回处理中状态
+        # 4. 如果找到了转账，但没有匹配的NFT，需要启动铸造流程
         if transfer_found:
-            logging.info(f"已找到转账记录，但尚未找到匹配的NFT，返回处理中状态")
-            return jsonify({
-                "status": "processing",
-                "message": "已检测到转账，正在铸造NFT，请稍候",
-                "tx_hash": tx_hash
-            })
+            logging.info(f"已找到转账记录，但尚未找到匹配的NFT，尝试启动铸造流程")
+            
+            # 搜索匹配的状态文件来启动铸造流程
+            status_dir = os.path.join(os.path.dirname(__file__), "status")
+            status_files_found = []
+            
+            if os.path.exists(status_dir):
+                for filename in os.listdir(status_dir):
+                    if (filename.startswith("register_status_") or filename.startswith("mint_status_")) and filename.endswith(".json"):
+                        status_file_path = os.path.join(status_dir, filename)
+                        try:
+                            with open(status_file_path, "r") as f:
+                                status_data = json.load(f)
+                            
+                            # 检查是否匹配当前请求
+                            if (status_data.get("metadata_url") == metadata_url and 
+                                status_data.get("user_address", "").lower() == user_address.lower() and
+                                status_data.get("result_type") == "no_watermark" and
+                                status_data.get("transfer_required") == True and
+                                not status_data.get("minting_started", False)):
+                                
+                                status_files_found.append((status_file_path, status_data))
+                                
+                        except Exception as e:
+                            logging.error(f"读取状态文件 {filename} 失败: {e}")
+                            continue
+            
+            # 如果找到匹配的状态文件，启动铸造流程
+            if status_files_found:
+                status_file_path, status_data = status_files_found[0]  # 使用第一个匹配的
+                
+                try:
+                    logging.info(f"找到匹配的状态文件，开始启动NFT铸造流程")
+                    
+                    # 启动NFT铸造流程
+                    ptau_info = status_data.get("ptau_info", {})
+                    minting_result = start_nft_minting(metadata_url, user_address, ptau_info)
+                    
+                    # 更新状态文件
+                    status_data["transfer_confirmed"] = True
+                    status_data["transfer_tx_hash"] = tx_hash
+                    status_data["minting_started"] = True
+                    status_data["minting_session_id"] = minting_result.get("session_id")
+                    status_data["minting_start_time"] = time.time()
+                    
+                    with open(status_file_path, "w") as f:
+                        json.dump(status_data, f)
+                    
+                    logging.info(f"NFT铸造流程已启动，会话ID: {minting_result.get('session_id')}")
+                    
+                    return jsonify({
+                        "status": "processing",
+                        "message": "已检测到转账，NFT铸造流程已启动，请稍候",
+                        "tx_hash": tx_hash,
+                        "minting_session_id": minting_result.get("session_id")
+                    })
+                    
+                except Exception as mint_e:
+                    logging.error(f"启动NFT铸造流程失败: {mint_e}")
+                    return jsonify({
+                        "status": "error",
+                        "message": f"检测到转账，但启动铸造流程时出错: {str(mint_e)}",
+                        "tx_hash": tx_hash
+                    })
+            else:
+                # 没有找到匹配的状态文件，可能是直接转账的情况
+                logging.warning(f"检测到转账但未找到匹配的状态文件，可能需要手动处理")
+                return jsonify({
+                    "status": "processing",
+                    "message": "已检测到转账，正在处理中，请稍候",
+                    "tx_hash": tx_hash
+                })
         
         # 5. 如果没有找到转账，返回等待状态
         logging.info(f"未找到转账记录，返回等待转账状态")
@@ -1164,12 +1276,13 @@ def check_report_status():
 @app.route('/api/check-transfer', methods=['POST'])
 def check_transfer():
     """
-    检查用户到Agent的转账是否已经完成
+    检查用户到Agent的转账是否已经完成，如果完成则启动相应的处理流程
     """
     data = request.json
     from_address = data.get('from_address')
     to_address = data.get('to_address')
     amount_eth = data.get('amount_eth')
+    session_id = data.get('session_id')  # 获取会话ID以查找状态
     
     if not from_address or not to_address or not amount_eth:
         return jsonify({"error": "缺少必要参数"}), 400
@@ -1222,6 +1335,68 @@ def check_transfer():
                 continue
         
         if transfer_found:
+            # 转账已确认，检查是否需要启动后续处理流程
+            if session_id:
+                try:
+                    # 查找对应的状态文件
+                    status_file_path = os.path.join(os.path.dirname(__file__), f"register_status_{session_id}.json")
+                    
+                    if os.path.exists(status_file_path):
+                        with open(status_file_path, "r") as f:
+                            status_data = json.load(f)
+                        
+                        # 检查是否是无水印的情况，需要启动铸造流程
+                        if status_data.get("result_type") == "no_watermark" and status_data.get("transfer_required"):
+                            logging.info(f"检测到转账完成，开始为会话 {session_id} 启动NFT铸造流程")
+                            
+                            # 启动NFT铸造流程
+                            metadata_url = status_data.get("metadata_url")
+                            user_address = status_data.get("user_address")
+                            ptau_info = status_data.get("ptau_info", {})
+                            
+                            if metadata_url and user_address:
+                                try:
+                                    minting_result = start_nft_minting(metadata_url, user_address, ptau_info)
+                                    
+                                    # 更新状态文件
+                                    status_data["transfer_confirmed"] = True
+                                    status_data["transfer_tx_hash"] = tx_hash
+                                    status_data["minting_started"] = True
+                                    status_data["minting_session_id"] = minting_result.get("session_id")
+                                    
+                                    with open(status_file_path, "w") as f:
+                                        json.dump(status_data, f)
+                                    
+                                    logging.info(f"NFT铸造流程已为会话 {session_id} 启动成功")
+                                    
+                                    return jsonify({
+                                        "status": "transfer_confirmed_minting_started",
+                                        "message": "转账已确认，NFT铸造流程已启动",
+                                        "tx_hash": tx_hash,
+                                        "minting_status": minting_result
+                                    })
+                                except Exception as mint_e:
+                                    logging.error(f"启动NFT铸造流程失败: {mint_e}")
+                                    return jsonify({
+                                        "status": "transfer_found_minting_failed",
+                                        "message": "转账已确认，但启动铸造流程时出错",
+                                        "tx_hash": tx_hash,
+                                        "error": str(mint_e)
+                                    })
+                            else:
+                                logging.error(f"状态文件缺少必要的铸造信息")
+                                return jsonify({
+                                    "status": "transfer_found_missing_info",
+                                    "message": "转账已确认，但缺少铸造所需信息",
+                                    "tx_hash": tx_hash
+                                })
+                        else:
+                            # 其他类型的转账确认
+                            logging.info(f"转账已确认，但非无水印铸造类型: {status_data.get('result_type')}")
+                except Exception as status_e:
+                    logging.error(f"处理状态文件时出错: {status_e}")
+            
+            # 默认返回转账确认状态
             return jsonify({
                 "status": "transfer_found",
                 "message": "已检测到转账",
@@ -1494,5 +1669,103 @@ def check_watermark():
         except Exception as e:
             logging.warning(f"清理临时目录失败: {e}")
     
+@app.route('/api/generate-ptau', methods=['POST'])
+def generate_ptau():
+    """生成Powers of Tau初始文件"""
+    data = request.json
+    dataset_path = data.get('dataset_path')
+    user_address = data.get('user_address')
+    
+    if not dataset_path or not user_address:
+        return jsonify({"error": "缺少必要参数: dataset_path 和 user_address"}), 400
+    
+    try:
+        # 使用用户地址作为用户ID
+        user_id = user_address.replace('0x', '')[:8]  # 取地址前8位作为用户ID
+        
+        # 生成Powers of Tau
+        result = generate_ptau_for_dataset(dataset_path, user_id)
+        
+        if result["status"] == "success":
+            return jsonify({
+                "status": "success",
+                "message": "Powers of Tau初始化完成",
+                "total_pixels": result["total_pixels"],
+                "optimal_config": result["optimal_config"],
+                "user_id": user_id,
+                "next_step": "user_contribution"
+            })
+        else:
+            return jsonify(result), 500
+            
+    except Exception as e:
+        logging.error(f"生成Powers of Tau失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/get-initial-ptau/<user_id>', methods=['GET'])
+def get_initial_ptau(user_id):
+    """获取初始ptau文件供用户下载"""
+    try:
+        generator = PowerOfTauGenerator()
+        user_temp_dir = os.path.join(generator.temp_dir, f"user_{user_id}")
+        
+        # 查找初始ptau文件
+        ptau_files = [f for f in os.listdir(user_temp_dir) if f.endswith('_0000.ptau')]
+        
+        if not ptau_files:
+            return jsonify({"error": "未找到初始ptau文件"}), 404
+            
+        ptau_file_path = os.path.join(user_temp_dir, ptau_files[0])
+        
+        return send_file(
+            ptau_file_path, 
+            as_attachment=True, 
+            download_name=ptau_files[0],
+            mimetype='application/octet-stream'
+        )
+        
+    except Exception as e:
+        logging.error(f"获取初始ptau文件失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/upload-contribution/<user_id>', methods=['POST'])
+def upload_contribution(user_id):
+    """接收用户的ptau贡献文件"""
+    try:
+        if 'ptau_file' not in request.files:
+            return jsonify({"error": "未找到ptau文件"}), 400
+            
+        ptau_file = request.files['ptau_file']
+        constraint_power = request.form.get('constraint_power', type=int)
+        
+        if not constraint_power:
+            return jsonify({"error": "缺少constraint_power参数"}), 400
+        
+        # 保存用户贡献的ptau文件
+        generator = PowerOfTauGenerator()
+        user_temp_dir = os.path.join(generator.temp_dir, f"user_{user_id}")
+        os.makedirs(user_temp_dir, exist_ok=True)
+        
+        contributed_ptau_path = os.path.join(user_temp_dir, f"pot{constraint_power}_0001.ptau")
+        ptau_file.save(contributed_ptau_path)
+        
+        # 完成Powers of Tau仪式的后续步骤
+        final_ptau_path = generator.complete_ptau_ceremony_from_user_contribution(
+            contributed_ptau_path, user_id, constraint_power
+        )
+        
+        # 清理临时文件
+        generator.cleanup_temp_files(user_id)
+        
+        return jsonify({
+            "status": "success",
+            "message": "Powers of Tau仪式完成",
+            "final_ptau_path": final_ptau_path
+        })
+        
+    except Exception as e:
+        logging.error(f"处理用户贡献失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8765)

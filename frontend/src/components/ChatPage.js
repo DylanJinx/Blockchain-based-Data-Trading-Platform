@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useWeb3 } from "../utils/web3";
 import apiService from "../utils/apiService";
+import PowersOfTauContribution from "./PowersOfTauContribution";
 
 const ChatContainer = styled.div`
   background-color: white;
@@ -709,42 +710,7 @@ const ChatPage = () => {
             },
           ]);
 
-          // 先检查数据集是否存在水印
-          try {
-            // 调用 checkForWatermark.py 脚本检查数据集是否存在水印
-            const checkResult = await apiService.checkDatasetWatermark(
-              actionData.metadata_url
-            );
-
-            // 如果检测到水印，立即显示错误并阻止继续
-            if (checkResult.has_watermark) {
-              const errorMsg = `检测到该数据集存在水印！该数据集可能是从其他地方购买并转售的，为保护原创作者权益，禁止登记。`;
-
-              // 使用同步方式更新所有相关状态
-              await new Promise((resolve) => {
-                setRegisterError(errorMsg);
-                setAction(null);
-                setActionData({});
-                setWaitingForTransfer(false);
-                setTimeout(resolve, 10); // 给一点时间处理状态更新
-              });
-
-              setMessages((prev) => [
-                ...prev,
-                {
-                  content: errorMsg,
-                  isUser: false,
-                },
-              ]);
-
-              return;
-            }
-          } catch (error) {
-            console.error("检查水印失败:", error);
-            // 如果检查失败，记录日志，但仍继续流程
-          }
-
-          // 如果没有检测到水印，继续正常登记流程
+          // 直接调用后端API，让后端处理水印检测
           try {
             result = await apiService.registerData(
               actionData.metadata_url,
@@ -824,6 +790,55 @@ const ChatPage = () => {
               ]);
               setAction(null);
               setActionData({});
+            } else if (result.status === "copyright_violation") {
+              // 处理水印侵权情况
+              console.log("检测到侵权，开始Powers of Tau流程:", result);
+
+              let copyrightMessage =
+                result.message ||
+                "检测到您的数据集包含已有水印，涉嫌侵权行为。";
+
+              if (result.requires_user_contribution) {
+                copyrightMessage +=
+                  "\n\n我们正在为您生成零知识证明来证明您的数据集确实包含水印。";
+                copyrightMessage +=
+                  "\n需要您在浏览器中完成Powers of Tau贡献流程。";
+
+                // 这里可以添加一个按钮或链接来打开Powers of Tau贡献界面
+                // 暂时先显示信息，稍后可以实现具体的UI组件
+                if (result.user_id) {
+                  copyrightMessage += `\n\n用户ID: ${result.user_id}`;
+                  copyrightMessage += `\n约束幂次: ${result.constraint_power}`;
+                  copyrightMessage +=
+                    "\n\n请点击下方按钮开始Powers of Tau贡献流程。";
+                }
+              } else {
+                copyrightMessage += "\n\n相关证明将通过后台生成并发送给您。";
+              }
+
+              setMessages((prev) => [
+                ...prev,
+                {
+                  content: copyrightMessage,
+                  isUser: false,
+                },
+              ]);
+
+              // 如果需要用户贡献，保留action状态以显示贡献按钮
+              if (result.requires_user_contribution) {
+                setActionData({
+                  ...actionData,
+                  powersOfTauInfo: {
+                    user_id: result.user_id,
+                    constraint_power: result.constraint_power,
+                    ptau_info: result.ptau_info,
+                  },
+                });
+                // 不清除action，这样可以在UI中显示贡献按钮
+              } else {
+                setAction(null);
+                setActionData({});
+              }
             } else {
               // 未知状态
               setMessages((prev) => [
@@ -1153,6 +1168,44 @@ const ChatPage = () => {
 
     switch (action) {
       case "register_data":
+        // 如果检测到水印且需要用户贡献Powers of Tau
+        if (actionData.powersOfTauInfo) {
+          return (
+            <ActionPanel>
+              <ActionTitle>Powers of Tau 贡献</ActionTitle>
+              <PowersOfTauContribution
+                userId={actionData.powersOfTauInfo.user_id}
+                constraintPower={actionData.powersOfTauInfo.constraint_power}
+                onComplete={(result) => {
+                  console.log("Powers of Tau贡献完成:", result);
+                  setMessages((prev) => [
+                    ...prev,
+                    {
+                      content:
+                        "🎉 Powers of Tau贡献完成！零知识证明已生成，证明您的数据集确实包含水印。相关证明将发送给您。",
+                      isUser: false,
+                    },
+                  ]);
+                  setAction(null);
+                  setActionData({});
+                }}
+                onError={(error) => {
+                  console.error("Powers of Tau贡献失败:", error);
+                  setMessages((prev) => [
+                    ...prev,
+                    {
+                      content: `❌ Powers of Tau贡献失败: ${error.message}`,
+                      isUser: false,
+                    },
+                  ]);
+                  setAction(null);
+                  setActionData({});
+                }}
+              />
+            </ActionPanel>
+          );
+        }
+
         if (waitingForTransfer) {
           return (
             <ActionPanel>

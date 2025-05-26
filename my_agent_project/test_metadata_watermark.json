@@ -1,0 +1,9 @@
+{
+  "name": "测试水印数据集",
+  "description": "包含水印的测试数据集，用于验证Powers of Tau流程",
+  "zip_cid": "QmV159Xx5SRGbErJiodqjno4Mp6DmfNeTMpFeVRab2F5Aw",
+  "image_count": 100,
+  "creation_date": "2025-05-26",
+  "creator": "测试用户",
+  "tags": ["测试", "水印", "数据集"]
+}
