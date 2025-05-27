@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -11,8 +11,8 @@ import {
   Step,
   StepLabel,
   StepContent,
+  LinearProgress,
 } from "@mui/material";
-// import * as snarkjs from "snarkjs";
 
 const PowersOfTauContribution = ({
   userId,
@@ -23,159 +23,169 @@ const PowersOfTauContribution = ({
   const [activeStep, setActiveStep] = useState(0);
   const [contributing, setContributing] = useState(false);
   const [entropy, setEntropy] = useState("");
+  const [mouseEntropy, setMouseEntropy] = useState([]);
+  const [keyboardEntropy, setKeyboardEntropy] = useState([]);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
 
   const steps = [
     {
-      label: "下载初始文件",
-      description: "从服务器下载初始Powers of Tau文件",
+      label: "生成随机性",
+      description: "通过您的输入和互动生成随机性数据",
     },
     {
-      label: "输入随机性",
-      description: "请输入一些随机字符作为您的贡献",
+      label: "提交贡献",
+      description: "将您的随机性数据发送到服务器进行处理",
     },
     {
-      label: "生成贡献",
-      description: "在浏览器中生成您的Powers of Tau贡献",
-    },
-    {
-      label: "上传贡献",
-      description: "将您的贡献上传到服务器",
+      label: "完成贡献",
+      description: "服务器完成Powers of Tau贡献生成",
     },
   ];
 
-  const handleDownloadInitialPtau = async () => {
-    try {
-      setStatusMessage("正在下载初始Powers of Tau文件...");
+  // 收集鼠标移动的随机性
+  useEffect(() => {
+    let mouseData = [];
+    let startTime = Date.now();
 
-      const response = await fetch(`/api/get-initial-ptau/${userId}`);
-      if (!response.ok) {
-        throw new Error(`下载失败: ${response.statusText}`);
+    const handleMouseMove = (e) => {
+      if (mouseData.length < 100) {
+        // 限制收集的数据量
+        mouseData.push({
+          x: e.clientX,
+          y: e.clientY,
+          timestamp: Date.now() - startTime,
+        });
+        setMouseEntropy([...mouseData]);
       }
+    };
 
-      const blob = await response.blob();
-      const file = new File([blob], `pot${constraintPower}_0000.ptau`, {
-        type: "application/octet-stream",
-      });
+    const handleKeyPress = (e) => {
+      if (keyboardEntropy.length < 50) {
+        // 限制收集的数据量
+        setKeyboardEntropy((prev) => [
+          ...prev,
+          {
+            key: e.key,
+            timestamp: Date.now() - startTime,
+            keyCode: e.keyCode,
+          },
+        ]);
+      }
+    };
 
-      // 存储文件到组件状态（简化处理）
-      window.initialPtauFile = file;
-
-      setStatusMessage("初始文件下载完成");
-      setActiveStep(1);
-    } catch (error) {
-      console.error("下载初始ptau文件失败:", error);
-      onError(error);
+    if (activeStep === 0) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("keypress", handleKeyPress);
     }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("keypress", handleKeyPress);
+    };
+  }, [activeStep, keyboardEntropy.length]);
+
+  const validateEntropy = () => {
+    return (
+      entropy.length >= 10 &&
+      mouseEntropy.length >= 20 &&
+      keyboardEntropy.length >= 5
+    );
   };
 
-  const validateEntropy = (value) => {
-    return value.length >= 10; // 至少10个字符
+  const generateCombinedEntropy = () => {
+    const combined = {
+      userInput: entropy,
+      mouseMovements: mouseEntropy,
+      keyboardEvents: keyboardEntropy,
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent,
+      screenInfo: {
+        width: window.screen.width,
+        height: window.screen.height,
+      },
+      randomValues: Array.from({ length: 10 }, () => Math.random()),
+    };
+
+    return JSON.stringify(combined);
   };
 
   const handleEntropyChange = (event) => {
-    const value = event.target.value;
-    setEntropy(value);
+    setEntropy(event.target.value);
   };
 
-  const handleProceedToContribution = () => {
-    if (!validateEntropy(entropy)) {
-      alert("请输入至少10个字符的随机文本");
+  const handleStartContribution = async () => {
+    if (!validateEntropy()) {
+      alert(
+        "请确保输入足够的随机性数据：\n- 至少10个字符的文本\n- 至少移动鼠标20次\n- 至少按键5次"
+      );
       return;
     }
-    setActiveStep(2);
-    handleContribute();
-  };
 
-  const handleContribute = async () => {
+    setActiveStep(1);
+    setContributing(true);
+    setProgress(0);
+
     try {
-      setContributing(true);
-      setProgress(0);
-      setStatusMessage("正在生成您的Powers of Tau贡献...");
-
-      if (!window.initialPtauFile) {
-        throw new Error("未找到初始ptau文件");
-      }
-
-      // 读取初始ptau文件
-      const arrayBuffer = await window.initialPtauFile.arrayBuffer();
-      const ptauData = new Uint8Array(arrayBuffer);
-
+      setStatusMessage("正在准备您的随机性数据...");
       setProgress(20);
-      setStatusMessage("正在处理您的随机性输入...");
 
-      // 暂时注释掉snarkjs调用，等解决编译问题后再启用
+      const combinedEntropy = generateCombinedEntropy();
+
+      setStatusMessage("正在发送数据到服务器...");
       setProgress(40);
-      setStatusMessage("正在生成贡献，这可能需要一些时间...");
 
-      // TODO: 重新启用snarkjs
-      // const contributedPtau = await snarkjs.powersOfTau.contribute(
-      //   ptauData,
-      //   entropy,
-      //   `User ${userId} browser contribution`
-      // );
-
-      // 临时模拟贡献数据
-      const contributedPtau = ptauData; // 临时使用原始数据
-
-      setProgress(80);
-      setStatusMessage("贡献生成完成，正在上传...");
-      setActiveStep(3);
-
-      // 上传贡献
-      await uploadContribution(contributedPtau);
-    } catch (error) {
-      console.error("生成贡献失败:", error);
-      setStatusMessage(`贡献失败: ${error.message}`);
-      onError(error);
-    } finally {
-      setContributing(false);
-    }
-  };
-
-  const uploadContribution = async (contributedPtauData) => {
-    try {
-      setStatusMessage("正在上传您的贡献...");
-
-      const formData = new FormData();
-      const contributedFile = new Blob([contributedPtauData], {
-        type: "application/octet-stream",
-      });
-
-      formData.append(
-        "ptau_file",
-        contributedFile,
-        `pot${constraintPower}_0001.ptau`
-      );
-      formData.append("constraint_power", constraintPower.toString());
-
-      const response = await fetch(`/api/upload-contribution/${userId}`, {
+      const response = await fetch("/api/contribute-with-entropy", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          constraint_power: constraintPower,
+          entropy: combinedEntropy,
+        }),
       });
+
+      setProgress(60);
+      setStatusMessage("服务器正在处理您的贡献...");
 
       if (!response.ok) {
-        throw new Error(`上传失败: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || "服务器处理失败");
       }
 
       const result = await response.json();
 
       setProgress(100);
       setStatusMessage("Powers of Tau贡献完成！");
+      setActiveStep(2);
 
       if (onComplete) {
         onComplete(result);
       }
     } catch (error) {
-      console.error("上传贡献失败:", error);
-      setStatusMessage(`上传失败: ${error.message}`);
-      throw error;
+      console.error("贡献失败:", error);
+      setStatusMessage(`贡献失败: ${error.message}`);
+      if (onError) {
+        onError(error);
+      }
+    } finally {
+      setContributing(false);
     }
   };
 
+  const getEntropyQuality = () => {
+    const textQuality = Math.min(entropy.length / 20, 1);
+    const mouseQuality = Math.min(mouseEntropy.length / 50, 1);
+    const keyboardQuality = Math.min(keyboardEntropy.length / 10, 1);
+    return Math.round(
+      ((textQuality + mouseQuality + keyboardQuality) / 3) * 100
+    );
+  };
+
   return (
-    <Paper elevation={3} sx={{ p: 3, maxWidth: 600, mx: "auto" }}>
+    <Paper elevation={3} sx={{ p: 3, maxWidth: 700, mx: "auto" }}>
       <Typography variant="h5" gutterBottom>
         Powers of Tau 贡献
       </Typography>
@@ -184,10 +194,6 @@ const PowersOfTauContribution = ({
         检测到您的数据集包含水印。为了生成零知识证明作为证据，需要您参与Powers
         of Tau仪式。 您的随机性贡献将确保证明的安全性和不可伪造性。
       </Typography>
-
-      <Alert severity="warning" sx={{ mb: 2 }}>
-        注意：当前版本暂时禁用了snarkjs库以解决编译问题。功能正在开发中。
-      </Alert>
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="body2">
@@ -207,68 +213,84 @@ const PowersOfTauContribution = ({
               </Typography>
 
               {index === 0 && (
-                <Button
-                  variant="contained"
-                  onClick={handleDownloadInitialPtau}
-                  disabled={contributing}
-                >
-                  下载初始文件
-                </Button>
-              )}
-
-              {index === 1 && (
                 <Box>
+                  <Alert severity="info" sx={{ mb: 2 }}>
+                    为了生成安全的随机性，请进行以下操作：
+                    <br />• 在下方文本框中输入一些随机文字
+                    <br />• 移动鼠标产生随机轨迹
+                    <br />• 按一些随机按键
+                  </Alert>
+
                   <TextField
                     fullWidth
                     multiline
-                    rows={3}
+                    rows={4}
                     label="随机性输入"
-                    placeholder="请输入一些随机字符、单词或句子。您可以按键盘上的随机键，或者输入任何您想到的内容。至少需要10个字符。"
+                    placeholder="请输入任何您想到的内容：诗句、随机字符、想法等等。至少需要10个字符。"
                     value={entropy}
                     onChange={handleEntropyChange}
-                    error={entropy.length > 0 && !validateEntropy(entropy)}
-                    helperText={
-                      entropy.length > 0 && !validateEntropy(entropy)
-                        ? "至少需要10个字符"
-                        : `当前长度: ${entropy.length}`
-                    }
                     sx={{ mb: 2 }}
                   />
+
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      随机性质量: {getEntropyQuality()}%
+                    </Typography>
+                    <LinearProgress
+                      variant="determinate"
+                      value={getEntropyQuality()}
+                      sx={{ mb: 1 }}
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      文本输入: {entropy.length} 字符 | 鼠标移动:{" "}
+                      {mouseEntropy.length} 次 | 按键: {keyboardEntropy.length}{" "}
+                      次
+                    </Typography>
+                  </Box>
+
                   <Button
                     variant="contained"
-                    onClick={handleProceedToContribution}
-                    disabled={!validateEntropy(entropy) || contributing}
+                    onClick={handleStartContribution}
+                    disabled={!validateEntropy() || contributing}
+                    size="large"
                   >
                     开始生成贡献
                   </Button>
                 </Box>
               )}
 
-              {index === 2 && contributing && (
+              {index === 1 && contributing && (
                 <Box>
-                  <CircularProgress sx={{ mr: 2 }} />
-                  <Typography variant="body2" component="span">
-                    {statusMessage}
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <CircularProgress size={24} sx={{ mr: 2 }} />
+                    <Typography variant="body2">{statusMessage}</Typography>
+                  </Box>
+                  <LinearProgress variant="determinate" value={progress} />
+                  <Typography
+                    variant="caption"
+                    sx={{ mt: 1, display: "block" }}
+                  >
+                    进度: {progress}%
                   </Typography>
-                  {progress > 0 && (
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      进度: {progress}%
-                    </Typography>
-                  )}
                 </Box>
               )}
 
-              {index === 3 && (
-                <Typography variant="body2" color="success.main">
-                  {statusMessage}
-                </Typography>
+              {index === 2 && (
+                <Alert severity="success">
+                  <Typography variant="body2">
+                    🎉 Powers of Tau贡献成功完成！
+                    <br />
+                    零知识证明已生成，证明您的数据集确实包含水印。
+                    相关证明文件已保存在服务器端。
+                  </Typography>
+                </Alert>
               )}
             </StepContent>
           </Step>
         ))}
       </Stepper>
 
-      {statusMessage && !contributing && activeStep < 3 && (
+      {statusMessage && !contributing && activeStep < 2 && (
         <Alert
           severity={statusMessage.includes("失败") ? "error" : "info"}
           sx={{ mt: 2 }}

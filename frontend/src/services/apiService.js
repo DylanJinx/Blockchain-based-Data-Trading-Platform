@@ -203,6 +203,36 @@ class ApiService {
     }
   }
 
+  // Powers of Tau 贡献（简化版本）
+  async contributeWithEntropy(userId, constraintPower, entropy) {
+    try {
+      console.log("开始Powers of Tau贡献，用户ID:", userId);
+      const response = await api.post("/contribute-with-entropy", {
+        user_id: userId,
+        constraint_power: constraintPower,
+        entropy: entropy,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Powers of Tau贡献失败:", error);
+
+      // 处理服务器返回的错误
+      if (error.response) {
+        throw new Error(
+          error.response.data.message || error.response.data.error || "贡献失败"
+        );
+      }
+
+      // 如果是客户端超时
+      if (error.code === "ECONNABORTED") {
+        throw new Error("请求超时，贡献操作耗时过长");
+      }
+
+      // 其他网络错误
+      throw error;
+    }
+  }
+
   // 聊天接口
   async sendMessage(message, user_id, address) {
     try {

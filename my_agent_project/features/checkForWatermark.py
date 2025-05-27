@@ -210,26 +210,38 @@ def main():
             with open(watermark_info_path, 'r') as f:
                 info = json.load(f)
                 
-                # 处理单个buy_hash存储的情况
-                if "buy_hash" in info and info["buy_hash"] not in expected_hashes:
-                    expected_hashes.append(info["buy_hash"])
-                    logging.info(f"从watermark_info.json加载buy_hash: {info['buy_hash']}")
+            # 处理新格式（多个记录）
+            if "records" in info and isinstance(info["records"], list):
+                for record in info["records"]:
+                    if "buy_hash" in record and record["buy_hash"] not in expected_hashes:
+                        expected_hashes.append(record["buy_hash"])
+                        logging.info(f"从records加载buy_hash: {record['buy_hash']} (买家: {record.get('buyer_address', 'Unknown')}, 时间: {record.get('timestamp', 'Unknown')})")
                 
-                # 处理多个buy_hash存储的情况
-                if "buy_hashes" in info and isinstance(info["buy_hashes"], list):
-                    for hash_value in info["buy_hashes"]:
-                        if hash_value not in expected_hashes:
-                            expected_hashes.append(hash_value)
-                            logging.info(f"从watermark_info.json加载buy_hash: {hash_value}")
-                            
-                # 处理可能存在的历史记录
-                if "history" in info and isinstance(info["history"], list):
-                    for entry in info["history"]:
-                        if "buy_hash" in entry and entry["buy_hash"] not in expected_hashes:
-                            expected_hashes.append(entry["buy_hash"])
-                            logging.info(f"从历史记录加载buy_hash: {entry['buy_hash']}")
+                logging.info(f"从新格式watermark_info.json加载了 {len(info['records'])} 条水印记录")
+                
+            # 处理旧格式（单个记录）- 向后兼容
+            elif "buy_hash" in info and info["buy_hash"] not in expected_hashes:
+                expected_hashes.append(info["buy_hash"])
+                logging.info(f"从旧格式watermark_info.json加载buy_hash: {info['buy_hash']}")
+                
+            # 处理其他可能的格式
+            if "buy_hashes" in info and isinstance(info["buy_hashes"], list):
+                for hash_value in info["buy_hashes"]:
+                    if hash_value not in expected_hashes:
+                        expected_hashes.append(hash_value)
+                        logging.info(f"从buy_hashes列表加载buy_hash: {hash_value}")
+                        
+            # 处理可能存在的历史记录
+            if "history" in info and isinstance(info["history"], list):
+                for entry in info["history"]:
+                    if "buy_hash" in entry and entry["buy_hash"] not in expected_hashes:
+                        expected_hashes.append(entry["buy_hash"])
+                        logging.info(f"从历史记录加载buy_hash: {entry['buy_hash']}")
+                        
         except Exception as e:
             logging.warning(f"无法从{watermark_info_path}加载预期的buy_hash: {str(e)}")
+    
+    logging.info(f"总共加载了 {len(expected_hashes)} 个预期的buy_hash值用于匹配")
     
     # 创建临时目录
     temp_dir = tempfile.mkdtemp()

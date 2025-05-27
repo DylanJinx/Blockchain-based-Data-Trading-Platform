@@ -15,6 +15,7 @@ from features.feature_resale import run_xrid_commands, interpret_results
 from features.poweroftau_generator import PowerOfTauGenerator, generate_ptau_for_dataset
 import requests
 import time
+import hashlib
 
 # 配置日志
 logging.basicConfig(
@@ -1766,6 +1767,76 @@ def upload_contribution(user_id):
     except Exception as e:
         logging.error(f"处理用户贡献失败: {e}")
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/contribute-with-entropy', methods=['POST'])
+def contribute_with_entropy():
+    """
+    接收用户提供的随机性数据，完成Powers of Tau贡献
+    """
+    data = request.json
+    user_id = data.get('user_id')
+    constraint_power = data.get('constraint_power')
+    user_entropy = data.get('entropy')
+    
+    if not user_id or not constraint_power or not user_entropy:
+        return jsonify({"error": "缺少必要参数: user_id, constraint_power, entropy"}), 400
+    
+    try:
+        # 增强随机性：结合用户输入、时间戳、用户ID等
+        import hashlib
+        import time
+        import os
+        
+        # 生成更强的随机性
+        enhanced_entropy = f"{user_entropy}_{time.time()}_{user_id}_{os.urandom(32).hex()}"
+        entropy_hash = hashlib.sha256(enhanced_entropy.encode()).hexdigest()
+        
+        logging.info(f"开始处理用户 {user_id} 的Powers of Tau贡献，使用预定义约束大小: 2^{constraint_power}")
+        
+        # 使用feature_register中的生成器
+        from features.poweroftau_generator import PowerOfTauGenerator
+        generator = PowerOfTauGenerator()
+        
+        # 生成初始ptau文件（直接使用传入的constraint_power，不重新计算）
+        user_temp_dir = os.path.join(generator.temp_dir, f"user_{user_id}")
+        os.makedirs(user_temp_dir, exist_ok=True)
+        
+        initial_ptau_path = generator.generate_powers_of_tau(constraint_power, user_id)
+        contributed_ptau_path = os.path.join(user_temp_dir, f"pot{constraint_power}_0001.ptau")
+        
+        # 使用用户提供的随机性进行贡献
+        logging.info(f"使用用户提供的随机性进行贡献: entropy长度={len(user_entropy)}")
+        generator.contribute_with_entropy(
+            initial_ptau_path,
+            contributed_ptau_path,
+            entropy=entropy_hash,
+            name=f"User_{user_id}_browser_contribution"
+        )
+        
+        # 完成Powers of Tau仪式
+        final_ptau_path = generator.complete_powers_of_tau_ceremony(
+            contributed_ptau_path, user_id, constraint_power
+        )
+        
+        # 清理临时文件
+        generator.cleanup_temp_files(user_id)
+        
+        logging.info(f"用户 {user_id} 的Powers of Tau贡献完成，最终文件: {final_ptau_path}")
+        
+        return jsonify({
+            "status": "success",
+            "message": "Powers of Tau贡献完成",
+            "final_ptau_path": final_ptau_path,
+            "entropy_used": len(user_entropy),
+            "contribution_hash": entropy_hash[:16]  # 只返回前16位作为确认
+        })
+        
+    except Exception as e:
+        logging.error(f"Powers of Tau贡献失败: {e}")
+        return jsonify({
+            "status": "error",
+            "message": f"贡献失败: {str(e)}"
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8765)

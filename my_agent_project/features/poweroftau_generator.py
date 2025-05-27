@@ -98,11 +98,19 @@ class PowerOfTauGenerator:
             sys.path.append(os.path.join(self.project_root, "ABCD_total_time", "code"))
             from adaptive_block_algorithm import AdaptiveBlockAlgorithm
             
-            # 运行真正的算法
-            algorithm = AdaptiveBlockAlgorithm()
-            optimal, results, constraint_groups = algorithm.run_analysis(
-                total_pixels, use_d_total=True, save_results=False
-            )
+            # 切换到正确的工作目录以避免相对路径问题
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(os.path.join(self.project_root, "ABCD_total_time", "code"))
+                
+                # 运行真正的算法（禁用保存以避免路径问题）
+                algorithm = AdaptiveBlockAlgorithm()
+                optimal, results, constraint_groups = algorithm.run_analysis(
+                    total_pixels, use_d_total=True, save_results=False
+                )
+            finally:
+                # 恢复原来的工作目录
+                os.chdir(original_cwd)
             
             if optimal:
                 config = {

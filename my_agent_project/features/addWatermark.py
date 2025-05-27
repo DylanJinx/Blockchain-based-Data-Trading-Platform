@@ -264,17 +264,63 @@ def main(token_id=None, buyer_address=None, sale_hash=None):
     processed_count = process_image_folder(dataset_folder, watermark_folder, buy_hash)
     logging.info(f"已为 {processed_count} 个文件添加水印")
     
-    # 4) 保存水印信息到文件，供以后检测使用
+    # 4) 保存水印信息到文件，供以后检测使用 - 修改为追加模式
+    watermark_record = {
+        "buy_hash": buy_hash,
+        "watermark_info": watermark_info,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "token_id": token_id,
+        "buyer_address": buyer_address,
+        "processed_files": processed_count
+    }
+    
+    # 检查文件是否存在，如果存在则加载现有数据
+    if os.path.exists(watermark_info_path):
+        try:
+            with open(watermark_info_path, 'r') as f:
+                existing_data = json.load(f)
+                
+            # 如果现有数据是旧格式（单个记录），转换为新格式（多个记录）
+            if "buy_hash" in existing_data and "records" not in existing_data:
+                # 旧格式，转换为新格式
+                new_data = {
+                    "records": [existing_data],
+                    "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "total_records": 1
+                }
+                existing_data = new_data
+            elif "records" not in existing_data:
+                # 如果没有records字段，创建新的结构
+                existing_data = {
+                    "records": [],
+                    "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "total_records": 0
+                }
+        except (json.JSONDecodeError, FileNotFoundError):
+            # 文件损坏或不存在，创建新的数据结构
+            existing_data = {
+                "records": [],
+                "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "total_records": 0
+            }
+    else:
+        # 文件不存在，创建新的数据结构
+        existing_data = {
+            "records": [],
+            "last_updated": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "total_records": 0
+        }
+    
+    # 添加新的水印记录
+    existing_data["records"].append(watermark_record)
+    existing_data["last_updated"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    existing_data["total_records"] = len(existing_data["records"])
+    
+    # 保存更新后的数据
     with open(watermark_info_path, 'w') as f:
-        json.dump({
-            "buy_hash": buy_hash,
-            "watermark_info": watermark_info,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "token_id": token_id,
-            "buyer_address": buyer_address,
-            "processed_files": processed_count
-        }, f, indent=4)
-    logging.info(f"已保存水印信息到: {watermark_info_path}")
+        json.dump(existing_data, f, indent=4)
+    
+    logging.info(f"已保存水印信息到: {watermark_info_path}，当前共有 {existing_data['total_records']} 条记录")
     
     # 5) 压缩 dataset_watermark => dataset_watermark.zip
     with zipfile.ZipFile(watermark_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
