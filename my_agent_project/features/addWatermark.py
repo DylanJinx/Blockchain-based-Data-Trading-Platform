@@ -12,6 +12,7 @@ from web3 import Web3
 def add_lsb_watermark(image_path, buy_hash, output_path):
     """
     将buy_hash水印信息嵌入到图像的最低有效位(LSB)
+    使用与LSB_groth16完全一致的列优先嵌入方式
     
     参数:
     image_path: 原始图像路径
@@ -22,43 +23,37 @@ def add_lsb_watermark(image_path, buy_hash, output_path):
     bool: 成功返回True，失败返回False
     """
     try:
-        # 加载图像
-        image = Image.open(image_path)
+        # 加载图像并转为RGB (与LSB_groth16一致)
+        image = Image.open(image_path).convert('RGB')
+        pixel = image.load()
+        width, height = image.size
         
-        # 检查是否是PNG/JPG格式
-        if image.format not in ['PNG', 'JPEG', 'JPG']:
-            # 如果不是，转换为RGB模式确保能够处理
-            image = image.convert('RGB')
-        
-        # 将图像转换为numpy数组以便处理
-        pixels = np.array(image)
-        
-        # 将buy_hash转换为二进制字符串
+        # 将buy_hash转换为二进制字符串 (保持原有逻辑)
         binary_watermark = ''.join([bin(ord(c))[2:].rjust(8, '0') for c in buy_hash])
-        watermark_length = len(binary_watermark)
         
-        # 展平数组以便逐位嵌入
-        pixels_flat = pixels.reshape(-1)
+        # 计算总容量并填充 (关键：与LSB_groth16一致)
+        total_capacity = width * height * 3
+        if len(binary_watermark) < total_capacity:
+            padded_secret = binary_watermark + '0' * (total_capacity - len(binary_watermark))
+        else:
+            padded_secret = binary_watermark[:total_capacity]
         
-        if len(pixels_flat) < watermark_length:
-            logging.error(f"图像 {os.path.basename(image_path)} 太小，无法嵌入完整的水印")
-            return False
+        # 列优先遍历嵌入 (关键：与LSB_groth16完全一致)
+        index = 0
+        for x in range(width):  # 列优先
+            for y in range(height):
+                r, g, b = pixel[x, y]
+                # RGB三通道LSB嵌入
+                r = (r & 0xFE) | int(padded_secret[index])
+                index += 1
+                g = (g & 0xFE) | int(padded_secret[index])
+                index += 1
+                b = (b & 0xFE) | int(padded_secret[index])
+                index += 1
+                pixel[x, y] = (r, g, b)
         
-        # 嵌入水印信息
-        for i in range(watermark_length):
-            # 将最低位清零并替换为水印位
-            pixels_flat[i] = (pixels_flat[i] & ~1) | int(binary_watermark[i])
-        
-        # 将剩余像素值的最低位设为0（从水印长度开始到图像结束）
-        for i in range(watermark_length, len(pixels_flat)):
-            pixels_flat[i] = pixels_flat[i] & ~1  # 清零最低位
-        
-        # 重构图像
-        watermarked_pixels = pixels_flat.reshape(pixels.shape)
-        watermarked_image = Image.fromarray(watermarked_pixels)
-        
-        # 保存水印图像
-        watermarked_image.save(output_path)
+        # 保存图像
+        image.save(output_path, format='PNG')
         return True
     
     except Exception as e:

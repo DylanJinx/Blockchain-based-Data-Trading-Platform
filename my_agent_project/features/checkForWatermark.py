@@ -15,6 +15,7 @@ import re
 def extract_lsb_watermark(image_path, expected_length=512):
     """
     从图像的最低有效位(LSB)中提取水印信息
+    使用与嵌入一致的列优先提取方式
     
     参数:
     image_path: 图像路径
@@ -25,23 +26,33 @@ def extract_lsb_watermark(image_path, expected_length=512):
     """
     try:
         # 加载图像
-        image = Image.open(image_path)
-        pixels = np.array(image)
+        image = Image.open(image_path).convert('RGB')
+        pixel = image.load()
+        width, height = image.size
         
-        # 展平像素数组
-        pixels_flat = pixels.reshape(-1)
-        
-        # 提取最低有效位，但只提取我们期望的哈希长度
+        # 列优先提取LSB (与嵌入顺序完全一致)
         bits = []
-        for i in range(min(expected_length, len(pixels_flat))):
-            bits.append(str(pixels_flat[i] & 1))
+        for x in range(width):  # 列优先
+            for y in range(height):
+                if len(bits) >= expected_length:
+                    break
+                r, g, b = pixel[x, y]
+                # 按RGB顺序提取LSB
+                bits.append(str(r & 1))
+                if len(bits) >= expected_length:
+                    break
+                bits.append(str(g & 1))
+                if len(bits) >= expected_length:
+                    break
+                bits.append(str(b & 1))
+            if len(bits) >= expected_length:
+                break
         
+        # 转换为字符串
         bit_string = ''.join(bits)
-        
-        # 每8位转换为一个字符
         chars = []
         for i in range(0, len(bit_string), 8):
-            if i + 8 <= len(bit_string):  # 确保有完整的8位
+            if i + 8 <= len(bit_string):
                 byte = bit_string[i:i+8]
                 char_code = int(byte, 2)
                 chars.append(chr(char_code))

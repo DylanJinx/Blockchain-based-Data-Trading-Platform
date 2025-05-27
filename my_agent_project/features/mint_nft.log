@@ -713,3 +713,28 @@ registerData() 交易已上链，hash = 4774af276dcc8f0ab9ce7657fd203a79fe42d92b
 
 === 登记成功！tokenId=8, dataOwner=0x976EA74026E726554dB657fA54763abd0C3a0aa9 ===
 {"status": "success", "message": "\u6570\u636e\u96c6\u767b\u8bb0\u6210\u529f\uff01", "token_id": "8", "data_owner": "0x976EA74026E726554dB657fA54763abd0C3a0aa9", "tx_hash": "4774af276dcc8f0ab9ce7657fd203a79fe42d92b9ead184a5f1759fbe5e99d24"}
+
+
+--- 新铸造请求 http://127.0.0.1:8080/ipfs/QmNVRvSoxtabLnf4VVS7Tc9rLQB2vtpm2VVhPZweeeDg8j 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC (会话ID: 1748334942) ---
+Powers of Tau配置: {'power': 17, 'constraint_size': 131072, 'M': 477, 'm': 58, 'total_time': 1587.269099428234}
+注册NFT的用户地址: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+
+===== 场景：用户 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC 想要登记数据集（NFT），CID = 'http://127.0.0.1:8080/ipfs/QmNVRvSoxtabLnf4VVS7Tc9rLQB2vtpm2VVhPZweeeDg8j' =====
+
+需要用户转 3 ETH 到 Agent: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+等待用户转账...
+
+{"status": "waiting_for_transfer", "message": "\u8bf7\u8f6c 3 ETH \u5230\u4ee5\u4e0b\u5730\u5740", "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "required_eth": 3}
+开始轮询区块，以查找 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC -> Agent 的 3 ETH 交易。需要的金额(wei): 3000000000000000000
+当前区块高度: 39，将从此开始监听新区块
+检查区块 39...
+仍在等待转账... 已等待: 0秒, 剩余: 299秒
+检查区块 40...
+在区块 40 找到匹配交易，hash=c625c358bdf7ec1a54648063b51a5d3fe11abd7cd0da081ca63fc5bd677ccf8b
+确认收到来自用户的 3 ETH，交易哈希: c625c358bdf7ec1a54648063b51a5d3fe11abd7cd0da081ca63fc5bd677ccf8b
+
+=== 调用 DataRegistration.registerData(http://127.0.0.1:8080/ipfs/QmNVRvSoxtabLnf4VVS7Tc9rLQB2vtpm2VVhPZweeeDg8j, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC)，附带 3 ETH ===
+registerData() 交易已上链，hash = d9ce4032fc9e59f7a25fe8b8c92908c890c942c21a6060db045c18fc47920c91
+
+=== 登记成功！tokenId=9, dataOwner=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC ===
+{"status": "success", "message": "\u6570\u636e\u96c6\u767b\u8bb0\u6210\u529f\uff01", "token_id": "9", "data_owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", "tx_hash": "d9ce4032fc9e59f7a25fe8b8c92908c890c942c21a6060db045c18fc47920c91"}
