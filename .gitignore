@@ -19,3 +19,5 @@ poweroftau_integration_summary.md
 python_generate_poweroftau/
 temp_ptau/
 test_ptau_integration.py
+
+docs/logs/

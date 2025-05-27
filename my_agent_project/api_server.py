@@ -1781,11 +1781,32 @@ def contribute_with_entropy():
     if not user_id or not constraint_power or not user_entropy:
         return jsonify({"error": "缺少必要参数: user_id, constraint_power, entropy"}), 400
     
+    # 防重复执行保护：检查是否已有同样的处理正在进行
+    lock_file = os.path.join(os.path.dirname(__file__), f"temp_ptau/.lock_user_{user_id}_{constraint_power}")
+    
+    # 创建锁目录
+    os.makedirs(os.path.dirname(lock_file), exist_ok=True)
+    
+    if os.path.exists(lock_file):
+        # 检查锁文件是否过期（超过30分钟）
+        try:
+            lock_time = os.path.getmtime(lock_file)
+            if time.time() - lock_time < 1800:  # 30分钟内
+                logging.warning(f"用户 {user_id} 的Powers of Tau处理已在进行中，拒绝重复请求")
+                return jsonify({
+                    "status": "processing",
+                    "message": "您的Powers of Tau贡献正在处理中，请不要重复提交"
+                }), 429  # Too Many Requests
+        except Exception:
+            pass
+    
     try:
+        # 创建锁文件
+        with open(lock_file, 'w') as f:
+            f.write(f"{time.time()}\n{user_id}\n{constraint_power}")
+        
         # 增强随机性：结合用户输入、时间戳、用户ID等
         import hashlib
-        import time
-        import os
         
         # 生成更强的随机性
         enhanced_entropy = f"{user_entropy}_{time.time()}_{user_id}_{os.urandom(32).hex()}"
@@ -1797,14 +1818,16 @@ def contribute_with_entropy():
         from features.poweroftau_generator import PowerOfTauGenerator
         generator = PowerOfTauGenerator()
         
-        # 生成初始ptau文件（直接使用传入的constraint_power，不重新计算）
+        # 正确的流程：先生成初始ptau文件
         user_temp_dir = os.path.join(generator.temp_dir, f"user_{user_id}")
         os.makedirs(user_temp_dir, exist_ok=True)
         
-        initial_ptau_path = generator.generate_powers_of_tau(constraint_power, user_id)
+        # 1. 生成初始ptau文件（仅初始化步骤）
+        initial_info = generator.generate_initial_ptau_for_user_contribution(constraint_power, user_id)
+        initial_ptau_path = initial_info["initial_ptau_path"]
         contributed_ptau_path = os.path.join(user_temp_dir, f"pot{constraint_power}_0001.ptau")
         
-        # 使用用户提供的随机性进行贡献
+        # 2. 使用用户提供的随机性进行贡献
         logging.info(f"使用用户提供的随机性进行贡献: entropy长度={len(user_entropy)}")
         generator.contribute_with_entropy(
             initial_ptau_path,
@@ -1813,26 +1836,91 @@ def contribute_with_entropy():
             name=f"User_{user_id}_browser_contribution"
         )
         
-        # 完成Powers of Tau仪式
-        final_ptau_path = generator.complete_powers_of_tau_ceremony(
-            contributed_ptau_path, user_id, constraint_power
-        )
+        # 3. 验证用户贡献（只到步骤3）
+        logging.info("步骤3: 验证用户贡献")
+        generator._run_snarkjs_command([
+            "powersoftau", "verify", contributed_ptau_path
+        ])
+        logging.info("用户贡献验证完成")
         
-        # 清理临时文件
-        generator.cleanup_temp_files(user_id)
+        # 删除锁文件
+        try:
+            os.remove(lock_file)
+        except Exception:
+            pass
         
-        logging.info(f"用户 {user_id} 的Powers of Tau贡献完成，最终文件: {final_ptau_path}")
+        # 启动后台线程完成步骤4-7
+        import threading
+        def complete_remaining_steps():
+            try:
+                logging.info("开始后台执行Powers of Tau剩余步骤（步骤4-7）")
+                
+                # 用户工作目录
+                user_temp_dir = os.path.join(generator.temp_dir, f"user_{user_id}")
+                
+                # 定义后续文件名
+                beacon_ptau = os.path.join(user_temp_dir, f"pot{constraint_power}_beacon.ptau")
+                final_ptau = os.path.join(user_temp_dir, f"pot{constraint_power}_final.ptau")
+                final_destination = os.path.join(generator.lsb_dir, f"pot{constraint_power}_final.ptau")
+                
+                # 4. 引入随机化信标
+                logging.info("步骤4: 引入随机化信标")
+                beacon_hash = hex(int(time.time()))[2:]  # 使用当前时间戳作为随机信标
+                generator._run_snarkjs_command([
+                    "powersoftau", "beacon", contributed_ptau_path, beacon_ptau, beacon_hash, "10", "-v"
+                ])
+                
+                # 5. 生成最终的final.ptau
+                logging.info("步骤5: 生成最终的final.ptau")
+                generator._run_snarkjs_command([
+                    "powersoftau", "prepare", "phase2", beacon_ptau, final_ptau, "-v"
+                ])
+                
+                # 6. 验证final.ptau
+                logging.info("步骤6: 验证final.ptau")
+                generator._run_snarkjs_command([
+                    "powersoftau", "verify", final_ptau
+                ])
+                
+                # 7. 将最终文件复制到LSB_groth16文件夹
+                logging.info("步骤7: 复制最终文件到LSB_groth16文件夹")
+                import shutil
+                os.makedirs(generator.lsb_dir, exist_ok=True)
+                shutil.copy2(final_ptau, final_destination)
+                
+                # 清理临时文件
+                generator.cleanup_temp_files(user_id)
+                
+                logging.info(f"后台Powers of Tau完成，最终文件: {final_destination}")
+                
+            except Exception as e:
+                logging.error(f"后台Powers of Tau步骤4-7执行失败: {e}")
         
+        # 启动后台线程
+        background_thread = threading.Thread(target=complete_remaining_steps)
+        background_thread.daemon = True  # 设为守护线程
+        background_thread.start()
+        
+        # 立即返回响应给前端（在步骤3完成后）
         return jsonify({
             "status": "success",
-            "message": "Powers of Tau贡献完成",
-            "final_ptau_path": final_ptau_path,
+            "message": "Powers of Tau贡献完成！零知识证明正在生成，证明您的数据集确实包含水印。相关证明请到证明界面领取。",
+            "contribution_verified": True,
             "entropy_used": len(user_entropy),
-            "contribution_hash": entropy_hash[:16]  # 只返回前16位作为确认
+            "contribution_hash": entropy_hash[:16],  # 只返回前16位作为确认
+            "next_step": "zk_proof_generation",  # 告诉前端下一步是零知识证明生成
+            "background_processing": "步骤4-7正在后台进行"
         })
         
     except Exception as e:
         logging.error(f"Powers of Tau贡献失败: {e}")
+        
+        # 删除锁文件
+        try:
+            os.remove(lock_file)
+        except Exception:
+            pass
+            
         return jsonify({
             "status": "error",
             "message": f"贡献失败: {str(e)}"

@@ -604,3 +604,112 @@ registerData() 交易已上链，hash = 2109433d5f9c98bb3aeae07cdcdaf910b26b2de6
 
 === 登记成功！tokenId=5, dataOwner=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC ===
 {"status": "success", "message": "\u6570\u636e\u96c6\u767b\u8bb0\u6210\u529f\uff01", "token_id": "5", "data_owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", "tx_hash": "2109433d5f9c98bb3aeae07cdcdaf910b26b2de6e128d71ea121552690df5bd0"}
+
+
+--- 新铸造请求 http://127.0.0.1:8080/ipfs/QmRpuZcUFnJaCpZTryMP2V3cVAwQtrvREQKM65Ldv6kAvL 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC (会话ID: 1748317582) ---
+Powers of Tau配置: {'power': 18, 'constraint_size': 262144, 'M': 80, 'm': 116, 'total_time': 0.0}
+注册NFT的用户地址: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+
+===== 场景：用户 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC 想要登记数据集（NFT），CID = 'http://127.0.0.1:8080/ipfs/QmRpuZcUFnJaCpZTryMP2V3cVAwQtrvREQKM65Ldv6kAvL' =====
+
+需要用户转 3 ETH 到 Agent: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+等待用户转账...
+
+{"status": "waiting_for_transfer", "message": "\u8bf7\u8f6c 3 ETH \u5230\u4ee5\u4e0b\u5730\u5740", "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "required_eth": 3}
+开始轮询区块，以查找 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC -> Agent 的 3 ETH 交易。需要的金额(wei): 3000000000000000000
+当前区块高度: 29，将从此开始监听新区块
+检查区块 29...
+仍在等待转账... 已等待: 0秒, 剩余: 299秒
+仍在等待转账... 已等待: 10秒, 剩余: 289秒
+仍在等待转账... 已等待: 20秒, 剩余: 279秒
+仍在等待转账... 已等待: 30秒, 剩余: 269秒
+仍在等待转账... 已等待: 40秒, 剩余: 259秒
+仍在等待转账... 已等待: 50秒, 剩余: 249秒
+仍在等待转账... 已等待: 60秒, 剩余: 239秒
+仍在等待转账... 已等待: 70秒, 剩余: 229秒
+仍在等待转账... 已等待: 80秒, 剩余: 219秒
+仍在等待转账... 已等待: 90秒, 剩余: 209秒
+Traceback (most recent call last):
+  File "/Users/dylan/Code_Projects/Python_Projects/image_similarity/python_call_contract/../python_call_contract/function_1_mint_nft.py", line 214, in <module>
+    main()
+  File "/Users/dylan/Code_Projects/Python_Projects/image_similarity/python_call_contract/../python_call_contract/function_1_mint_nft.py", line 159, in main
+    tx_hash = wait_for_alice_transaction(alice_address, agent_address, required_value_wei)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dylan/Code_Projects/Python_Projects/image_similarity/python_call_contract/../python_call_contract/function_1_mint_nft.py", line 107, in wait_for_alice_transaction
+    time.sleep(10)  # 每10秒轮询一次新区块
+    ^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+
+--- 新铸造请求 http://127.0.0.1:8080/ipfs/Qmc7qVgcnbuF3m8SQWKULWtn3b3mNBrtQuRdBsEJ8iyxwQ 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC (会话ID: 1748317763) ---
+Powers of Tau配置: {'power': 16, 'constraint_size': 65536, 'M': 318, 'm': 29, 'total_time': 648.9037121356794}
+注册NFT的用户地址: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+
+===== 场景：用户 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC 想要登记数据集（NFT），CID = 'http://127.0.0.1:8080/ipfs/Qmc7qVgcnbuF3m8SQWKULWtn3b3mNBrtQuRdBsEJ8iyxwQ' =====
+
+需要用户转 3 ETH 到 Agent: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+等待用户转账...
+
+{"status": "waiting_for_transfer", "message": "\u8bf7\u8f6c 3 ETH \u5230\u4ee5\u4e0b\u5730\u5740", "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "required_eth": 3}
+开始轮询区块，以查找 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC -> Agent 的 3 ETH 交易。需要的金额(wei): 3000000000000000000
+当前区块高度: 29，将从此开始监听新区块
+检查区块 29...
+仍在等待转账... 已等待: 0秒, 剩余: 299秒
+仍在等待转账... 已等待: 10秒, 剩余: 289秒
+检查区块 30...
+在区块 30 找到匹配交易，hash=a1e7cebaf5eb10505cf18f444d5a450d8b705c024b9344412aca468d7c5eb570
+确认收到来自用户的 3 ETH，交易哈希: a1e7cebaf5eb10505cf18f444d5a450d8b705c024b9344412aca468d7c5eb570
+
+=== 调用 DataRegistration.registerData(http://127.0.0.1:8080/ipfs/Qmc7qVgcnbuF3m8SQWKULWtn3b3mNBrtQuRdBsEJ8iyxwQ, 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC)，附带 3 ETH ===
+registerData() 交易已上链，hash = 0f18b27b6e4b834035f7c70373d3c6fe30487434c99f60f7498a06a6bc27351f
+
+=== 登记成功！tokenId=6, dataOwner=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC ===
+{"status": "success", "message": "\u6570\u636e\u96c6\u767b\u8bb0\u6210\u529f\uff01", "token_id": "6", "data_owner": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", "tx_hash": "0f18b27b6e4b834035f7c70373d3c6fe30487434c99f60f7498a06a6bc27351f"}
+
+
+--- 新铸造请求 http://127.0.0.1:8080/ipfs/QmZi3B3USLxraeLFVCVVnuqeytuAkwBAyN8XqVKVfHK4Kx 0x90F79bf6EB2c4f870365E785982E1f101E93b906 (会话ID: 1748325045) ---
+Powers of Tau配置: {'power': 19, 'constraint_size': 524288, 'M': 3956, 'm': 233, 'total_time': 35336.87631746354}
+注册NFT的用户地址: 0x90F79bf6EB2c4f870365E785982E1f101E93b906
+
+===== 场景：用户 0x90F79bf6EB2c4f870365E785982E1f101E93b906 想要登记数据集（NFT），CID = 'http://127.0.0.1:8080/ipfs/QmZi3B3USLxraeLFVCVVnuqeytuAkwBAyN8XqVKVfHK4Kx' =====
+
+需要用户转 3 ETH 到 Agent: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+等待用户转账...
+
+{"status": "waiting_for_transfer", "message": "\u8bf7\u8f6c 3 ETH \u5230\u4ee5\u4e0b\u5730\u5740", "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "required_eth": 3}
+开始轮询区块，以查找 0x90F79bf6EB2c4f870365E785982E1f101E93b906 -> Agent 的 3 ETH 交易。需要的金额(wei): 3000000000000000000
+当前区块高度: 35，将从此开始监听新区块
+检查区块 35...
+在区块 35 找到匹配交易，hash=cd2c3ac3a5c3ef155518bdcd872da5e423925ce03b7396909ef2280acf7031bd
+确认收到来自用户的 3 ETH，交易哈希: cd2c3ac3a5c3ef155518bdcd872da5e423925ce03b7396909ef2280acf7031bd
+
+=== 调用 DataRegistration.registerData(http://127.0.0.1:8080/ipfs/QmZi3B3USLxraeLFVCVVnuqeytuAkwBAyN8XqVKVfHK4Kx, 0x90F79bf6EB2c4f870365E785982E1f101E93b906)，附带 3 ETH ===
+registerData() 交易已上链，hash = fc57637faad34af679d9b68cad0edd9f67c9abe7c967fd955f0d6ed264514a99
+
+=== 登记成功！tokenId=7, dataOwner=0x90F79bf6EB2c4f870365E785982E1f101E93b906 ===
+{"status": "success", "message": "\u6570\u636e\u96c6\u767b\u8bb0\u6210\u529f\uff01", "token_id": "7", "data_owner": "0x90F79bf6EB2c4f870365E785982E1f101E93b906", "tx_hash": "fc57637faad34af679d9b68cad0edd9f67c9abe7c967fd955f0d6ed264514a99"}
+
+
+--- 新铸造请求 http://127.0.0.1:8080/ipfs/QmRRjrjKtxyMEVaiSg6QCsxSdudhA8eBEearHbVA2P9R72 0x976EA74026E726554dB657fA54763abd0C3a0aa9 (会话ID: 1748328965) ---
+Powers of Tau配置: {'power': 19, 'constraint_size': 524288, 'M': 3956, 'm': 233, 'total_time': 35336.87631746354}
+注册NFT的用户地址: 0x976EA74026E726554dB657fA54763abd0C3a0aa9
+
+===== 场景：用户 0x976EA74026E726554dB657fA54763abd0C3a0aa9 想要登记数据集（NFT），CID = 'http://127.0.0.1:8080/ipfs/QmRRjrjKtxyMEVaiSg6QCsxSdudhA8eBEearHbVA2P9R72' =====
+
+需要用户转 3 ETH 到 Agent: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+等待用户转账...
+
+{"status": "waiting_for_transfer", "message": "\u8bf7\u8f6c 3 ETH \u5230\u4ee5\u4e0b\u5730\u5740", "agent_address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "required_eth": 3}
+开始轮询区块，以查找 0x976EA74026E726554dB657fA54763abd0C3a0aa9 -> Agent 的 3 ETH 交易。需要的金额(wei): 3000000000000000000
+当前区块高度: 37，将从此开始监听新区块
+检查区块 37...
+仍在等待转账... 已等待: 0秒, 剩余: 299秒
+检查区块 38...
+在区块 38 找到匹配交易，hash=5ea605f925bc604d2f73dbc09253644b7d487bf0ac861599b55593884434122d
+确认收到来自用户的 3 ETH，交易哈希: 5ea605f925bc604d2f73dbc09253644b7d487bf0ac861599b55593884434122d
+
+=== 调用 DataRegistration.registerData(http://127.0.0.1:8080/ipfs/QmRRjrjKtxyMEVaiSg6QCsxSdudhA8eBEearHbVA2P9R72, 0x976EA74026E726554dB657fA54763abd0C3a0aa9)，附带 3 ETH ===
+registerData() 交易已上链，hash = 4774af276dcc8f0ab9ce7657fd203a79fe42d92b9ead184a5f1759fbe5e99d24
+
+=== 登记成功！tokenId=8, dataOwner=0x976EA74026E726554dB657fA54763abd0C3a0aa9 ===
+{"status": "success", "message": "\u6570\u636e\u96c6\u767b\u8bb0\u6210\u529f\uff01", "token_id": "8", "data_owner": "0x976EA74026E726554dB657fA54763abd0C3a0aa9", "tx_hash": "4774af276dcc8f0ab9ce7657fd203a79fe42d92b9ead184a5f1759fbe5e99d24"}

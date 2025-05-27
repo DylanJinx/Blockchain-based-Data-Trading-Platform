@@ -129,7 +129,7 @@ class PowerOfTauGenerator:
                 
         except Exception as e:
             logging.error(f"使用adaptive_block_algorithm计算失败: {e}")
-            logging.info("回退到简化计算方法")
+            logging.info("回退到基于经验的计算方法")
             return self._get_fallback_config(total_pixels)
     
     def _get_fallback_config(self, total_pixels: int) -> Dict[str, Any]:
@@ -142,7 +142,7 @@ class PowerOfTauGenerator:
         Returns:
             备用约束配置
         """
-        # 基于经验的简化计算
+        # 基于经验的计算
         if total_pixels <= 100000:
             power = 18  # 2^18 = 262144
         elif total_pixels <= 500000:

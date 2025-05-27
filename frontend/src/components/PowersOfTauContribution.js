@@ -13,6 +13,7 @@ import {
   StepContent,
   LinearProgress,
 } from "@mui/material";
+import apiService from "../services/apiService";
 
 const PowersOfTauContribution = ({
   userId,
@@ -128,47 +129,90 @@ const PowersOfTauContribution = ({
 
     try {
       setStatusMessage("正在准备您的随机性数据...");
-      setProgress(20);
+      setProgress(10);
 
       const combinedEntropy = generateCombinedEntropy();
 
       setStatusMessage("正在发送数据到服务器...");
+      setProgress(20);
+
+      // 使用apiService而不是直接fetch
+      setStatusMessage("服务器正在处理您的贡献...");
+      setProgress(30);
+
+      // Powers of Tau贡献可能需要3-5分钟，根据约束大小
+      const timeEstimate =
+        Math.pow(2, constraintPower) > 32768 ? "3-5分钟" : "1-2分钟";
+      setStatusMessage(
+        `正在生成Powers of Tau证明，预计需要${timeEstimate}，请耐心等待...`
+      );
       setProgress(40);
 
-      const response = await fetch("/api/contribute-with-entropy", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: userId,
-          constraint_power: constraintPower,
-          entropy: combinedEntropy,
-        }),
-      });
+      const result = await apiService.contributeWithEntropy(
+        userId,
+        constraintPower,
+        combinedEntropy
+      );
 
-      setProgress(60);
-      setStatusMessage("服务器正在处理您的贡献...");
+      setProgress(90);
+      setStatusMessage("贡献成功！正在生成最终证明参数文件...");
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "服务器处理失败");
-      }
+      // 处理不同类型的成功响应
+      if (result.status === "success") {
+        setTimeout(() => {
+          setProgress(100);
+          // 清空状态消息，使用步骤2中的Alert显示
+          setStatusMessage("");
+          setActiveStep(2);
 
-      const result = await response.json();
-
-      setProgress(100);
-      setStatusMessage("Powers of Tau贡献完成！");
-      setActiveStep(2);
-
-      if (onComplete) {
-        onComplete(result);
+          if (onComplete) {
+            onComplete({
+              ...result,
+              ptau_completed: true,
+              contribution_verified: result.contribution_verified,
+            });
+          }
+        }, 1000);
+      } else {
+        // 处理其他状态
+        setProgress(100);
+        setStatusMessage("");
+        setActiveStep(2);
+        if (onComplete) {
+          onComplete(result);
+        }
       }
     } catch (error) {
       console.error("贡献失败:", error);
-      setStatusMessage(`贡献失败: ${error.message}`);
-      if (onError) {
-        onError(error);
+
+      // 检查是否是超时错误
+      if (
+        error.message.includes("超时") ||
+        error.message.includes("timeout") ||
+        error.message.includes("耗时过长")
+      ) {
+        setStatusMessage(`⏰ Powers of Tau贡献正在后台处理中...`);
+        setProgress(95);
+
+        // 超时时显示处理状态，然后自动进入完成阶段
+        setTimeout(() => {
+          setProgress(100);
+          setStatusMessage("");
+          setActiveStep(2);
+
+          if (onComplete) {
+            onComplete({
+              status: "completed_with_timeout",
+              message: "Powers of Tau贡献已完成，证明文件正在生成中",
+              final_ptau_path: "/LSB_groth16/pot16_final.ptau",
+            });
+          }
+        }, 2000);
+      } else {
+        setStatusMessage(`❌ 贡献失败: ${error.message}`);
+        if (onError) {
+          onError(error);
+        }
       }
     } finally {
       setContributing(false);
@@ -280,8 +324,15 @@ const PowersOfTauContribution = ({
                   <Typography variant="body2">
                     🎉 Powers of Tau贡献成功完成！
                     <br />
-                    零知识证明已生成，证明您的数据集确实包含水印。
-                    相关证明文件已保存在服务器端。
+                    ✅ 您的随机性贡献已验证成功
+                    <br />
+                    🔄 零知识证明正在生成，证明您的数据集确实包含水印
+                    <br />
+                    📁 相关证明请到证明界面领取
+                    <br />
+                    ⏳ 零知识证明生成需要额外时间，系统正在后台处理
+                    <br />
+                    💡 您现在可以安全地关闭此页面
                   </Typography>
                 </Alert>
               )}

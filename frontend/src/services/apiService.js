@@ -6,10 +6,10 @@ const api = axios.create({
   timeout: 30000, // 默认30秒超时
 });
 
-// 检查水印的专用实例（更长的超时）
+// 检查水印和Powers of Tau的专用实例（更长的超时）
 const longTimeoutApi = axios.create({
   baseURL: "http://localhost:8765/api",
-  timeout: 180000, // 水印检查使用3分钟超时
+  timeout: 300000, // 水印检查和Powers of Tau贡献使用5分钟超时
 });
 
 class ApiService {
@@ -203,11 +203,12 @@ class ApiService {
     }
   }
 
-  // Powers of Tau 贡献（简化版本）
+  // Powers of Tau 贡献- 使用长超时
   async contributeWithEntropy(userId, constraintPower, entropy) {
     try {
       console.log("开始Powers of Tau贡献，用户ID:", userId);
-      const response = await api.post("/contribute-with-entropy", {
+      // 使用长超时实例
+      const response = await longTimeoutApi.post("/contribute-with-entropy", {
         user_id: userId,
         constraint_power: constraintPower,
         entropy: entropy,
@@ -225,7 +226,9 @@ class ApiService {
 
       // 如果是客户端超时
       if (error.code === "ECONNABORTED") {
-        throw new Error("请求超时，贡献操作耗时过长");
+        throw new Error(
+          "贡献操作耗时过长。您的贡献正在后台处理中，请稍等片刻。"
+        );
       }
 
       // 其他网络错误

@@ -243,7 +243,7 @@ const DataRegisterFlow = ({
     console.log("Powers of Tau贡献完成:", result);
     setStatus("success");
     setMessage(
-      "Powers of Tau贡献完成！零知识证明已生成，证明您的数据集确实包含水印。相关证明将发送给您。"
+      "🎉 Powers of Tau贡献成功完成！\n✅ 您的随机性贡献已验证成功\n🔄 零知识证明正在生成，证明您的数据集确实包含水印\n📁 相关证明请到证明界面领取\n⏳ 零知识证明生成需要额外时间，系统正在后台处理\n💡 您现在可以安全地关闭此页面"
     );
     setRequiresUserContribution(false);
     if (onComplete) {

@@ -1,6 +1,15 @@
 const webpack = require("webpack");
 
 module.exports = {
+  devServer: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8765",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   webpack: {
     configure: (webpackConfig) => {
       // 添加 fallback 配置
