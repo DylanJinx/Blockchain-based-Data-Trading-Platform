@@ -1918,8 +1918,11 @@ def contribute_with_entropy():
                                 chunk_pixel_size = stage3_status.get("chunk_pixel_size", 29)
                                 chunked_data_dir = stage3_status.get("chunked_data_dir")
                                 optimal_config = stage3_status.get("optimal_config", {})
+                                user_address = stage3_status.get("user_address")  # 🔧 新增：从状态文件获取用户地址
                                 
                                 logging.info(f"开始为买家哈希 {buyer_hash_16} 生成零知识证明")
+                                if user_address:
+                                    logging.info(f"用户地址: {user_address}")
                                 
                                 # 准备LSB实验目录
                                 lsb_experiments_dir = os.path.join(generator.lsb_dir, "LSB_experiments")
@@ -1988,7 +1991,8 @@ def contribute_with_entropy():
                                     buy_hash=buyer_hash,
                                     chunked_data_dir=chunked_data_dir,
                                     chunk_pixel_size=chunk_pixel_size,
-                                    constraint_power=constraint_power
+                                    constraint_power=constraint_power,
+                                    user_address=user_address  # 🔧 新增：传递用户地址参数
                                 )
                                 
                                 if stage4_result.get("status") == "success":
@@ -2073,6 +2077,201 @@ def contribute_with_entropy():
         return jsonify({
             "status": "error",
             "message": f"贡献失败: {str(e)}"
+        }), 500
+    
+# ================================
+# 证明包相关API
+# ================================
+
+@app.route('/api/list-proof-packages', methods=['POST'])
+def list_proof_packages():
+    """列出用户可用的证明包"""
+    try:
+        data = request.get_json()
+        user_address = data.get('user_address')
+        
+        if not user_address:
+            return jsonify({"error": "缺少必要参数: user_address"}), 400
+        
+        if not user_address.startswith('0x') or len(user_address) != 42:
+            return jsonify({"error": "用户地址格式不正确"}), 400
+        
+        # 导入证明包生成器
+        from features.proof_package_generator import ProofPackageGenerator
+        
+        generator = ProofPackageGenerator()
+        packages = generator.list_available_packages(user_address)
+        
+        # 格式化返回数据
+        formatted_packages = []
+        for pkg in packages:
+            package_info = pkg.get('package_info', {})
+            formatted_packages.append({
+                "filename": pkg['filename'],
+                "size_mb": round(pkg['size_mb'], 2),
+                "creation_time": package_info.get('package_creation_time_str', '未知'),
+                "user_address": package_info.get('user_address', '未知'),
+                "buy_hash_short": package_info.get('buy_hash', '')[:16] + "..." if package_info.get('buy_hash') else '未知',
+                "proof_files_count": package_info.get('proof_files_count', 0),
+                "public_files_count": package_info.get('public_files_count', 0),
+                "package_name": package_info.get('package_name', pkg['filename'][:-4])
+            })
+        
+        logging.info(f"用户 {user_address} 查询证明包，找到 {len(formatted_packages)} 个包")
+        
+        return jsonify({
+            "status": "success",
+            "packages": formatted_packages,
+            "total_count": len(formatted_packages)
+        })
+        
+    except Exception as e:
+        logging.error(f"列出证明包失败: {e}")
+        return jsonify({
+            "status": "error",
+            "message": f"查询失败: {str(e)}"
+        }), 500
+
+@app.route('/api/download-proof-package/<package_name>', methods=['GET'])
+def download_proof_package(package_name):
+    """下载指定的证明包"""
+    try:
+        # 验证包名格式
+        if not package_name.endswith('.zip') or not package_name.startswith('proof_'):
+            return jsonify({"error": "无效的包名格式"}), 400
+        
+        # 导入证明包生成器
+        from features.proof_package_generator import ProofPackageGenerator
+        
+        generator = ProofPackageGenerator()
+        package_path = os.path.join(generator.packages_dir, package_name)
+        
+        # 检查文件是否存在
+        if not os.path.exists(package_path):
+            return jsonify({"error": "证明包不存在"}), 404
+        
+        logging.info(f"用户下载证明包: {package_name}")
+        
+        # 使用Flask的send_file发送文件
+        from flask import send_file
+        return send_file(
+            package_path,
+            as_attachment=True,
+            download_name=package_name,
+            mimetype='application/zip'
+        )
+        
+    except Exception as e:
+        logging.error(f"下载证明包失败: {e}")
+        return jsonify({
+            "status": "error",
+            "message": f"下载失败: {str(e)}"
+        }), 500
+
+@app.route('/api/check-proof-status', methods=['POST'])
+def check_proof_status():
+    """检查用户的零知识证明生成状态"""
+    try:
+        data = request.get_json()
+        user_address = data.get('user_address')
+        
+        if not user_address:
+            return jsonify({"error": "缺少必要参数: user_address"}), 400
+        
+        if not user_address.startswith('0x') or len(user_address) != 42:
+            return jsonify({"error": "用户地址格式不正确"}), 400
+        
+        # 生成用户ID
+        user_id = user_address.replace('0x', '')[:8].upper()
+        
+        # 查找相关状态文件
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        lsb_dir = os.path.join(project_root, "LSB_groth16")
+        
+        # 查找stage3状态文件
+        stage3_status_file = os.path.join(lsb_dir, f"stage3_completed_{user_id}.json")
+        stage3_status = None
+        
+        if os.path.exists(stage3_status_file):
+            with open(stage3_status_file, 'r') as f:
+                stage3_status = json.load(f)
+        
+        # 检查证明包
+        from features.proof_package_generator import ProofPackageGenerator
+        generator = ProofPackageGenerator()
+        packages = generator.list_available_packages(user_address)
+        
+        # 确定当前状态
+        current_status = "未开始"
+        status_detail = "尚未检测到数据集注册"
+        package_count = len(packages)
+        
+        if stage3_status:
+            stage3_state = stage3_status.get("status", "unknown")
+            
+            if stage3_state == "stage3_completed_waiting_ptau":
+                current_status = "等待Powers of Tau贡献"
+                status_detail = "分块和初步证明已完成，等待用户贡献随机性"
+            elif stage3_state == "stage4_completed":
+                current_status = "证明生成完成"
+                status_detail = f"零知识证明已生成完成，可下载 {package_count} 个证明包"
+            elif "stage3" in stage3_state:
+                current_status = "分块处理中"
+                status_detail = "正在进行数据分块和预处理"
+            else:
+                current_status = "处理中"
+                status_detail = f"当前状态: {stage3_state}"
+        
+        logging.info(f"用户 {user_address} 查询证明状态: {current_status}")
+        
+        return jsonify({
+            "status": "success",
+            "proof_status": current_status,
+            "status_detail": status_detail,
+            "package_count": package_count,
+            "user_id": user_id,
+            "has_packages": package_count > 0,
+            "stage3_status": stage3_status.get("status") if stage3_status else None
+        })
+        
+    except Exception as e:
+        logging.error(f"检查证明状态失败: {e}")
+        return jsonify({
+            "status": "error",
+            "message": f"查询失败: {str(e)}"
+        }), 500
+
+@app.route('/api/cleanup-old-packages', methods=['POST'])
+def cleanup_old_packages():
+    """清理旧的证明包（管理员功能）"""
+    try:
+        data = request.get_json()
+        days_old = data.get('days_old', 7)  # 默认清理7天前的包
+        admin_key = data.get('admin_key')
+        
+        # 简单的管理员验证（实际应用中应该使用更安全的方式）
+        if admin_key != "admin_cleanup_2024":
+            return jsonify({"error": "无效的管理员密钥"}), 403
+        
+        from features.proof_package_generator import ProofPackageGenerator
+        
+        generator = ProofPackageGenerator()
+        cleaned_count = generator.cleanup_old_packages(days_old)
+        
+        logging.info(f"管理员清理了 {cleaned_count} 个旧证明包")
+        
+        return jsonify({
+            "status": "success",
+            "cleaned_count": cleaned_count,
+            "message": f"已清理 {cleaned_count} 个超过 {days_old} 天的证明包"
+        })
+        
+    except Exception as e:
+        logging.error(f"清理证明包失败: {e}")
+        return jsonify({
+            "status": "error",
+            "message": f"清理失败: {str(e)}"
         }), 500
     
 if __name__ == '__main__':

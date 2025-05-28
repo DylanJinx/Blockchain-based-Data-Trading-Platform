@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import UploadPage from "./components/UploadPage";
 import ChatPage from "./components/ChatPage";
 import MarketPage from "./components/MarketPage";
+import ProofPackagePage from "./components/ProofPackagePage";
 import "./App.css";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Routes>
               <Route path="/" element={<MarketPage />} />
               <Route path="/upload" element={<UploadPage />} />
+              <Route path="/proof-packages" element={<ProofPackagePage />} />
               <Route path="/chat" element={<ChatPage />} />
             </Routes>
           </div>

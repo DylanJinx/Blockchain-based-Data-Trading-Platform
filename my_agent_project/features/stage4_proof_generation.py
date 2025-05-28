@@ -20,6 +20,14 @@ import logging
 from typing import Dict, Any, List
 from pathlib import Path
 
+# 导入证明打包生成器
+try:
+    # 尝试相对导入
+    from .proof_package_generator import auto_package_proof_on_completion
+except ImportError:
+    # 如果相对导入失败，使用绝对导入
+    from proof_package_generator import auto_package_proof_on_completion
+
 
 class Stage4ProofGenerator:
     """第四阶段零知识证明生成器"""
@@ -31,13 +39,13 @@ class Stage4ProofGenerator:
         Args:
             lsb_groth16_base: LSB_groth16 基础目录路径
         """
-        if lsb_groth16_base:
-            self.lsb_groth16_base = lsb_groth16_base
-        else:
-            # 默认路径：从当前项目目录向上查找
+        if lsb_groth16_base is None:
+            # 自动检测LSB_groth16目录
             current_dir = os.path.dirname(os.path.abspath(__file__))
             project_root = os.path.dirname(os.path.dirname(current_dir))
             self.lsb_groth16_base = os.path.join(project_root, "LSB_groth16")
+        else:
+            self.lsb_groth16_base = lsb_groth16_base
         
         self.template_dir = os.path.join(self.lsb_groth16_base, "LSB_i")
         self.experiments_base = os.path.join(self.lsb_groth16_base, "LSB_experiments")
@@ -53,7 +61,8 @@ class Stage4ProofGenerator:
             os.makedirs(self.experiments_base, exist_ok=True)
 
     def generate_proof_for_watermark(self, buy_hash: str, chunked_data_dir: str, 
-                                   chunk_pixel_size: int, constraint_power: int) -> Dict[str, Any]:
+                                   chunk_pixel_size: int, constraint_power: int,
+                                   user_address: str = None) -> Dict[str, Any]:
         """
         为特定买家哈希的水印数据生成零知识证明
 
@@ -62,6 +71,7 @@ class Stage4ProofGenerator:
             chunked_data_dir: 分块数据目录
             chunk_pixel_size: 分块像素大小（如29）
             constraint_power: 约束功率（如16对应2^16）
+            user_address: 用户地址（用于证明包命名）
 
         Returns:
             证明生成结果字典
@@ -74,6 +84,8 @@ class Stage4ProofGenerator:
             experiment_dir = os.path.join(self.experiments_base, experiment_name)
             
             logging.info(f"开始为买家哈希 {experiment_name} 生成零知识证明...")
+            if user_address:
+                logging.info(f"用户地址: {user_address}")
             
             self._create_experiment_directory(experiment_dir)
             
@@ -98,6 +110,24 @@ class Stage4ProofGenerator:
             total_time = time.time() - start_time
             
             logging.info(f"✅ 零知识证明生成完成，总耗时: {total_time:.2f}秒")
+            logging.info(f"🎉 Stage 4零知识证明生成成功完成！")
+            
+            # 8. 自动生成证明包（如果提供了用户地址）
+            package_result = None
+            if user_address:
+                logging.info(f"开始为用户 {user_address} 自动生成证明包...")
+                package_result = auto_package_proof_on_completion(
+                    user_address=user_address,
+                    experiment_dir=experiment_dir,
+                    buy_hash=buy_hash
+                )
+                
+                if package_result and package_result.get("status") == "success":
+                    logging.info(f"🎁 证明包自动生成成功: {package_result['package_name']}")
+                else:
+                    logging.warning(f"⚠️ 证明包自动生成失败，但证明生成成功")
+            else:
+                logging.info("未提供用户地址，跳过自动证明包生成")
             
             return {
                 "status": "success",
@@ -108,7 +138,9 @@ class Stage4ProofGenerator:
                 "constraint_power": constraint_power,
                 "total_time": total_time,
                 "proof_results": proof_results,
-                "verification_results": verification_results
+                "verification_results": verification_results,
+                "user_address": user_address,
+                "package_result": package_result
             }
             
         except Exception as e:
@@ -116,7 +148,8 @@ class Stage4ProofGenerator:
             return {
                 "status": "error",
                 "error": str(e),
-                "buy_hash": buy_hash
+                "buy_hash": buy_hash,
+                "user_address": user_address
             }
 
     def _create_experiment_directory(self, experiment_dir: str):

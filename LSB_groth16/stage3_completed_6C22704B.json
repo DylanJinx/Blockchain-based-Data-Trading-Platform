@@ -1,0 +1,74 @@
+{
+  "buyer_hash": "d39939765e435951ea3bbb5cf620368d4fd1b4562c28e41e311e9dceab436112",
+  "buyer_hash_16": "d39939765e435951",
+  "chunk_pixel_size": 29,
+  "constraint_power": 16,
+  "total_chunks": 318,
+  "optimal_config": {
+    "power": 16,
+    "constraint_size": 65536,
+    "M": 318,
+    "m": 29,
+    "total_time": 648.9037121356794
+  },
+  "chunked_data_dir": "/Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/features/../data/chunked_inputs/session_d39939765e435951/chunk_pixel_29",
+  "stage3_completion_time": 1748412870.35661,
+  "user_id": "6C22704B",
+  "user_address": "0x6C22704b2af1BEE9B4Da058ec3Cdb69357E74057",
+  "user_id_source": "\u7528\u6237\u5730\u5740",
+  "status": "stage4_completed",
+  "ready_for_stage4": true,
+  "stage4_completion_time": 1748413858.928073,
+  "stage4_result": {
+    "status": "success",
+    "experiment_dir": "/Users/dylan/Code_Projects/Python_Projects/image_similarity/LSB_groth16/LSB_experiments/d39939765e435951",
+    "experiment_name": "d39939765e435951",
+    "buy_hash": "d39939765e435951ea3bbb5cf620368d4fd1b4562c28e41e311e9dceab436112",
+    "chunk_pixel_size": 29,
+    "constraint_power": 16,
+    "total_time": 689.537887096405,
+    "proof_results": {
+      "B_witness": {
+        "duration": 373.2548279762268,
+        "status": "success"
+      },
+      "C_zkey": {
+        "duration": 38.07507300376892,
+        "status": "success"
+      },
+      "D_proof": {
+        "duration": 221.19413495063782,
+        "status": "success"
+      }
+    },
+    "verification_results": {
+      "duration": 56.821722745895386,
+      "status": "success",
+      "proof_files_generated": 318,
+      "public_files_generated": 318
+    },
+    "user_address": "0x6C22704b2af1BEE9B4Da058ec3Cdb69357E74057",
+    "package_result": {
+      "status": "success",
+      "package_name": "proof_6c22704b2af1bee9b4da058ec3cdb69357e74057_1748413858.zip",
+      "package_path": "/Users/dylan/Code_Projects/Python_Projects/image_similarity/LSB_groth16/proof_packages/proof_6c22704b2af1bee9b4da058ec3cdb69357e74057_1748413858.zip",
+      "package_size": 281286,
+      "package_size_mb": 0.26825523376464844,
+      "proof_files_count": 318,
+      "public_files_count": 318,
+      "user_address": "0x6C22704b2af1BEE9B4Da058ec3Cdb69357E74057",
+      "buy_hash": "d39939765e435951ea3bbb5cf620368d4fd1b4562c28e41e311e9dceab436112",
+      "package_info": {
+        "user_address": "0x6C22704b2af1BEE9B4Da058ec3Cdb69357E74057",
+        "buy_hash": "d39939765e435951ea3bbb5cf620368d4fd1b4562c28e41e311e9dceab436112",
+        "experiment_dir": "/Users/dylan/Code_Projects/Python_Projects/image_similarity/LSB_groth16/LSB_experiments/d39939765e435951",
+        "package_creation_time": 1748413858.927221,
+        "package_creation_time_str": "2025-05-28 14:30:58",
+        "proof_files_count": 318,
+        "public_files_count": 318,
+        "package_name": "proof_6c22704b2af1bee9b4da058ec3cdb69357e74057_1748413858",
+        "format_version": "1.0"
+      }
+    }
+  }
+}

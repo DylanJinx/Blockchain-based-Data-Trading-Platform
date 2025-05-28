@@ -354,7 +354,8 @@ def register_data(metadata_url: str, user_address: str = None):
                 # 执行第三阶段分块处理
                 chunking_result = process_watermarked_dataset_registration(
                     buy_hash=detected_buy_hash,
-                    optimal_config=optimal_config
+                    optimal_config=optimal_config,
+                    user_address=user_address
                 )
                 
                 # ✅ 修复：stage3现在返回"copyright_violation"状态，这是正常的！

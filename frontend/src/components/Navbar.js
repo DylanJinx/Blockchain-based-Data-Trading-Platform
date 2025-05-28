@@ -169,6 +169,12 @@ const Navbar = () => {
           >
             上传数据
           </NavLink>
+          <NavLink
+            to="/proof-packages"
+            active={location.pathname === "/proof-packages" ? 1 : 0}
+          >
+            证明包下载
+          </NavLink>
           <NavLink to="/chat" active={location.pathname === "/chat" ? 1 : 0}>
             客服小x
           </NavLink>

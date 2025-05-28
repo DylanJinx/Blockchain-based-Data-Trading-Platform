@@ -245,7 +245,7 @@ class Stage3ChunkProcessor:
         logging.info(f"    ✅ 图片 {image_index} 分块完成，生成 {len(chunk_files)} 个文件")
         return chunk_files
 
-def process_watermarked_dataset_registration(buy_hash: str, optimal_config: Dict[str, Any]) -> Dict[str, Any]:
+def process_watermarked_dataset_registration(buy_hash: str, optimal_config: Dict[str, Any], user_address: str = None) -> Dict[str, Any]:
     """
     在数据集登记时检测到水印后的处理流程
     使用登记时已计算的最优约束参数进行分块
@@ -253,6 +253,7 @@ def process_watermarked_dataset_registration(buy_hash: str, optimal_config: Dict
     Args:
         buy_hash: 检测到的买家哈希值
         optimal_config: 登记时计算的最优约束配置，包含X、M、m参数
+        user_address: 用户地址（用于生成唯一的用户ID）
     
     Returns:
         处理结果
@@ -260,6 +261,7 @@ def process_watermarked_dataset_registration(buy_hash: str, optimal_config: Dict
     try:
         logging.info("=== 第三阶段：检测到水印数据集，开始分块处理 ===")
         logging.info(f"Buy hash: {buy_hash[:16]}...")
+        logging.info(f"User address: {user_address}")
         logging.info(f"最优约束配置: {optimal_config}")
         
         # 提取关键参数
@@ -302,8 +304,17 @@ def process_watermarked_dataset_registration(buy_hash: str, optimal_config: Dict
                 from features.poweroftau_generator import PowerOfTauGenerator
                 generator = PowerOfTauGenerator()
                 
-                # 使用买家哈希的前8位作为用户ID
-                user_id = buy_hash[:8].upper()
+                # 🔧 Bug修复：使用用户地址生成唯一的用户ID，而不是买家哈希
+                # 这样每个不同的用户都会有不同的用户ID
+                if user_address:
+                    user_id = user_address.replace('0x', '')[:8].upper()
+                    user_id_source = "用户地址"
+                else:
+                    # 如果没有用户地址，回退到买家哈希（兼容性）
+                    user_id = buy_hash[:8].upper()
+                    user_id_source = "买家哈希"
+                    
+                logging.info(f"生成的用户ID: {user_id} (来源: {user_id_source})")
                 
                 # 生成Powers of Tau初始文件
                 ptau_result = generator.generate_initial_ptau_for_user_contribution(
@@ -330,6 +341,8 @@ def process_watermarked_dataset_registration(buy_hash: str, optimal_config: Dict
                         "chunked_data_dir": result.get('chunk_output_dir'),
                         "stage3_completion_time": time.time(),
                         "user_id": user_id,
+                        "user_address": user_address,  # 🔧 保存用户地址供后续使用
+                        "user_id_source": user_id_source,  # 记录用户ID来源
                         "status": "stage3_completed_waiting_ptau",
                         "ready_for_stage4": False  # 等Powers of Tau完成后设为True
                     }

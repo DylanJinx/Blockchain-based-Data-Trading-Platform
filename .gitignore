@@ -18,3 +18,5 @@ temp_ptau/
 test_ptau_integration.py
 
 docs/logs/
+
+USER_ID_BUG_FIX_SUMMARY.md
