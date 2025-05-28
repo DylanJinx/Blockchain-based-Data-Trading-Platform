@@ -1849,7 +1849,7 @@ def contribute_with_entropy():
         except Exception:
             pass
         
-        # 启动后台线程完成步骤4-7
+        # 启动后台线程完成步骤4-7并自动启动Stage 4零知识证明生成
         import threading
         def complete_remaining_steps():
             try:
@@ -1893,6 +1893,155 @@ def contribute_with_entropy():
                 
                 logging.info(f"后台Powers of Tau完成，最终文件: {final_destination}")
                 
+                # ✅ 新增：Powers of Tau完成后自动启动Stage 4零知识证明生成
+                try:
+                    logging.info("🚀 Powers of Tau完成，开始自动启动Stage 4零知识证明生成")
+                    
+                    # 查找匹配的stage3状态文件
+                    import glob
+                    stage3_status_files = glob.glob(os.path.join(generator.lsb_dir, f"stage3_completed_{user_id}.json"))
+                    
+                    logging.info(f"查找stage3状态文件: stage3_completed_{user_id}.json")
+                    
+                    if stage3_status_files:
+                        stage3_status_file = stage3_status_files[0]
+                        logging.info(f"找到stage3状态文件: {stage3_status_file}")
+                        
+                        try:
+                            with open(stage3_status_file, 'r') as f:
+                                stage3_status = json.load(f)
+                            
+                            # 检查是否是等待Powers of Tau的状态
+                            if stage3_status.get("status") == "stage3_completed_waiting_ptau":
+                                buyer_hash = stage3_status.get("buyer_hash")
+                                buyer_hash_16 = stage3_status.get("buyer_hash_16")
+                                chunk_pixel_size = stage3_status.get("chunk_pixel_size", 29)
+                                chunked_data_dir = stage3_status.get("chunked_data_dir")
+                                optimal_config = stage3_status.get("optimal_config", {})
+                                
+                                logging.info(f"开始为买家哈希 {buyer_hash_16} 生成零知识证明")
+                                
+                                # 准备LSB实验目录
+                                lsb_experiments_dir = os.path.join(generator.lsb_dir, "LSB_experiments")
+                                buyer_experiment_dir = os.path.join(lsb_experiments_dir, buyer_hash_16)
+                                lsb_template_dir = os.path.join(generator.lsb_dir, "LSB_i")
+                                
+                                # 确保LSB_experiments目录存在
+                                os.makedirs(lsb_experiments_dir, exist_ok=True)
+                                
+                                # 检查是否需要创建实验目录
+                                if not os.path.exists(buyer_experiment_dir):
+                                    # 复制LSB_i模板到实验目录
+                                    if os.path.exists(lsb_template_dir):
+                                        shutil.copytree(lsb_template_dir, buyer_experiment_dir)
+                                        logging.info(f"✅ LSB模板复制完成: {lsb_template_dir} → {buyer_experiment_dir}")
+                                    else:
+                                        raise FileNotFoundError(f"LSB模板目录不存在: {lsb_template_dir}")
+                                    
+                                    # 复制分块文件到实验目录
+                                    target_input_dir = os.path.join(buyer_experiment_dir, "LSB", f"input_json_chunk_pixel_{chunk_pixel_size}")
+                                    
+                                    # 根据stage3状态确定正确的分块文件路径
+                                    if chunked_data_dir and os.path.exists(chunked_data_dir):
+                                        # 创建目标目录
+                                        os.makedirs(target_input_dir, exist_ok=True)
+                                        
+                                        # 保持原有的目录结构复制（包括input_1和input_2子目录）
+                                        # B_witness.py期望的目录结构：input_json_chunk_pixel_29/input_1/, input_json_chunk_pixel_29/input_2/
+                                        copied_count = 0
+                                        
+                                        # 遍历input_1, input_2等子目录
+                                        for item in os.listdir(chunked_data_dir):
+                                            item_path = os.path.join(chunked_data_dir, item)
+                                            if os.path.isdir(item_path) and item.startswith('input_'):
+                                                # 创建对应的子目录
+                                                target_subdir = os.path.join(target_input_dir, item)
+                                                os.makedirs(target_subdir, exist_ok=True)
+                                                
+                                                # 复制该子目录下的所有JSON文件
+                                                for file in os.listdir(item_path):
+                                                    if file.endswith('.json'):
+                                                        source_file = os.path.join(item_path, file)
+                                                        target_file = os.path.join(target_subdir, file)
+                                                        shutil.copy2(source_file, target_file)
+                                                        copied_count += 1
+                                                
+                                                logging.info(f"✅ 分块文件复制完成: {copied_count} 个文件 → {target_input_dir}")
+                                                logging.info(f"   源目录: {chunked_data_dir}")
+                                                logging.info(f"   保持了原有的子目录结构（input_1, input_2等）")
+                                        else:
+                                            logging.error(f"分块文件目录不存在: {chunked_data_dir}")
+                                    else:
+                                        logging.warning(f"分块文件源目录不存在: {chunked_data_dir}")
+                                else:
+                                    logging.info(f"实验目录已存在，跳过模板和分块文件复制: {buyer_experiment_dir}")
+                                    target_input_dir = os.path.join(buyer_experiment_dir, "LSB", f"input_json_chunk_pixel_{chunk_pixel_size}")
+                                
+                                # 启动Stage 4零知识证明生成
+                                from features.stage4_proof_generation import Stage4ProofGenerator
+                                stage4_generator = Stage4ProofGenerator()
+                                
+                                # 🔧 修复：使用原始分块数据目录，而不是target_input_dir
+                                # 原来的错误：chunked_data_dir=target_input_dir (会导致路径错误)
+                                # 修复为：chunked_data_dir=chunked_data_dir (使用原始源目录)
+                                stage4_result = stage4_generator.generate_proof_for_watermark(
+                                    buy_hash=buyer_hash,
+                                    chunked_data_dir=chunked_data_dir,
+                                    chunk_pixel_size=chunk_pixel_size,
+                                    constraint_power=constraint_power
+                                )
+                                
+                                if stage4_result.get("status") == "success":
+                                    logging.info("🎉 Stage 4零知识证明生成成功完成！")
+                                    logging.info(f"证明文件位置: {stage4_result.get('experiment_dir')}")
+                                    
+                                    # 更新stage3状态文件，标记Stage 4已完成
+                                    stage3_status["status"] = "stage4_completed"
+                                    stage3_status["stage4_completion_time"] = time.time()
+                                    stage3_status["stage4_result"] = stage4_result
+                                    stage3_status["ready_for_stage4"] = True
+                                    
+                                    with open(stage3_status_file, 'w') as f:
+                                        json.dump(stage3_status, f, indent=2)
+                                    
+                                    # 在实验目录中也创建完成标记
+                                    stage4_completed_file = os.path.join(buyer_experiment_dir, "stage4_completed.json")
+                                    stage4_completed_status = {
+                                        "user_id": user_id,
+                                        "buyer_hash": buyer_hash_16,
+                                        "completion_time": time.time(),
+                                        "proof_results": stage4_result,
+                                        "status": "completed"
+                                    }
+                                    with open(stage4_completed_file, 'w') as f:
+                                        json.dump(stage4_completed_status, f, indent=2)
+                                    
+                                else:
+                                    logging.error(f"❌ Stage 4零知识证明生成失败: {stage4_result.get('error', '未知错误')}")
+                            else:
+                                logging.warning(f"stage3状态不正确: {stage3_status.get('status')}")
+                                
+                        except Exception as read_e:
+                            logging.error(f"读取stage3状态文件失败: {read_e}")
+                            
+                    else:
+                        logging.warning(f"未找到匹配的stage3状态文件: stage3_completed_{user_id}.json")
+                        # 记录等待状态供后续查询
+                        pending_status_file = os.path.join(generator.lsb_dir, f"pending_stage4_{user_id}.json")
+                        pending_status = {
+                            "user_id": user_id,
+                            "constraint_power": constraint_power,
+                            "ptau_completed_time": time.time(),
+                            "status": "waiting_for_stage3_chunking"
+                        }
+                        with open(pending_status_file, 'w') as f:
+                            json.dump(pending_status, f, indent=2)
+                        logging.info(f"已记录等待状态: {pending_status_file}")
+                        
+                except Exception as stage4_e:
+                    logging.error(f"❌ Stage 4零知识证明生成失败: {stage4_e}")
+                    # 不抛出异常，因为Powers of Tau已经成功完成
+                
             except Exception as e:
                 logging.error(f"后台Powers of Tau步骤4-7执行失败: {e}")
         
@@ -1925,6 +2074,6 @@ def contribute_with_entropy():
             "status": "error",
             "message": f"贡献失败: {str(e)}"
         }), 500
-
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8765)

@@ -175,9 +175,165 @@ def process_image_folder(input_folder, output_folder, buy_hash):
     
     return processed_count
 
+def generate_zk_input_data(original_image_path, watermarked_image_path, buy_hash, output_dir, image_filename=None):
+    """
+    在购买时生成ZK证明所需的完整输入数据（第二阶段）
+    使用列优先方式读取像素值，与LSB_groth16一致
+    
+    参数:
+    original_image_path: 原始图像路径
+    watermarked_image_path: 水印图像路径  
+    buy_hash: 买家哈希值
+    output_dir: 输出目录
+    image_filename: 图像文件名（用于区分不同图片）
+    
+    返回:
+    str: 生成的输入文件路径
+    """
+    try:
+        logging.info(f"开始生成ZK输入数据，buy_hash: {buy_hash[:16]}...")
+        
+        # 1. 加载原始和水印图像
+        ori_img = Image.open(original_image_path).convert('RGB')
+        wm_img = Image.open(watermarked_image_path).convert('RGB')
+        
+        width, height = ori_img.size
+        total_pixels = width * height
+        
+        logging.info(f"图像尺寸: {width}x{height}, 总像素数: {total_pixels}")
+        
+        # 2. 关键：使用列优先方式展平像素 (与LSB_groth16一致)
+        # 将PIL图像转换为numpy数组，然后按列优先重排
+        ori_array = np.array(ori_img)
+        wm_array = np.array(wm_img)
+        
+        # 列优先展平：按(x,y)顺序，即先遍历x轴（列），再遍历y轴（行）
+        ori_pixels = []
+        wm_pixels = []
+        
+        for x in range(width):  # 列优先
+            for y in range(height):
+                ori_pixels.append(ori_array[y, x].tolist())  # numpy是[y,x]索引
+                wm_pixels.append(wm_array[y, x].tolist())
+        
+        # 3. 将buy_hash转换为二进制数组
+        binary_watermark = []
+        for c in buy_hash:
+            binary_watermark.extend([int(b) for b in bin(ord(c))[2:].rjust(8, '0')])
+        
+        # 4. 扩展水印到全容量 (与LSB_groth16一致)
+        extended_watermark_size = total_pixels * 3
+        if len(binary_watermark) < extended_watermark_size:
+            extended_watermark = binary_watermark + [0] * (extended_watermark_size - len(binary_watermark))
+        else:
+            extended_watermark = binary_watermark[:extended_watermark_size]
+        
+        # 5. 生成完整输入数据
+        zk_input_data = {
+            "metadata": {
+                "buy_hash": buy_hash,
+                "total_pixels": total_pixels,
+                "image_dimensions": [width, height],
+                "watermark_length": len(binary_watermark),
+                "timestamp": time.time(),
+                "format_version": "1.0",
+                "traversal_order": "column_major"
+            },
+            "pixel_data": {
+                "original_pixels": ori_pixels,
+                "watermarked_pixels": wm_pixels,
+                "binary_watermark": extended_watermark
+            },
+            "verification": {
+                "total_capacity": extended_watermark_size,
+                "used_capacity": len(binary_watermark),
+                "padding_zeros": extended_watermark_size - len(binary_watermark)
+            }
+        }
+        
+        # 6. 保存完整输入数据
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # 为每张图片生成独立的文件名
+        if image_filename:
+            # 去掉扩展名
+            base_name = os.path.splitext(image_filename)[0]
+            output_file = os.path.join(output_dir, f"zk_input_{buy_hash[:16]}_{base_name}.json")
+        else:
+            output_file = os.path.join(output_dir, f"complete_zk_input_{buy_hash[:16]}.json")
+        
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(zk_input_data, f, indent=2, ensure_ascii=False)
+        
+        logging.info(f"ZK输入数据已保存: {output_file}")
+        logging.info(f"文件大小: {os.path.getsize(output_file) / 1024:.1f} KB")
+        
+        return output_file
+    
+    except Exception as e:
+        logging.error(f"生成ZK输入数据失败: {str(e)}")
+        return None
+
+def find_zk_input_for_buy_hash(buy_hash, data_dir=None):
+    """
+    根据buy_hash查找对应的ZK输入数据文件
+    
+    参数:
+    buy_hash: 买家哈希值
+    data_dir: 数据目录，默认为相对路径的data目录
+    
+    返回:
+    dict: 包含ZK输入文件信息的字典，如果未找到则返回None
+    """
+    if data_dir is None:
+        data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
+    
+    # 查找ZK输入目录
+    zk_input_dir = os.path.join(data_dir, "zk_inputs")
+    if not os.path.exists(zk_input_dir):
+        logging.warning(f"ZK输入目录不存在: {zk_input_dir}")
+        return None
+    
+    # 查找匹配的文件（支持新的命名格式）
+    matching_files = []
+    buy_hash_prefix = buy_hash[:16]
+    
+    for file in os.listdir(zk_input_dir):
+        if file.startswith(f"zk_input_{buy_hash_prefix}_") and file.endswith(".json"):
+            full_path = os.path.join(zk_input_dir, file)
+            matching_files.append({
+                "file_path": full_path,
+                "filename": file,
+                "file_size": os.path.getsize(full_path),
+                "modified_time": os.path.getmtime(full_path)
+            })
+    
+    # 也检查旧格式的文件
+    old_pattern = f"complete_zk_input_{buy_hash_prefix}.json"
+    old_file = os.path.join(zk_input_dir, old_pattern)
+    if os.path.exists(old_file):
+        matching_files.append({
+            "file_path": old_file,
+            "filename": old_pattern,
+            "file_size": os.path.getsize(old_file),
+            "modified_time": os.path.getmtime(old_file)
+        })
+    
+    if matching_files:
+        logging.info(f"找到 {len(matching_files)} 个ZK输入文件，buy_hash: {buy_hash_prefix}...")
+        return {
+            "buy_hash": buy_hash,
+            "zk_input_files": matching_files,
+            "total_files": len(matching_files)
+        }
+    else:
+        logging.warning(f"未找到对应的ZK输入文件，buy_hash: {buy_hash_prefix}...")
+        return None
+
 def main(token_id=None, buyer_address=None, sale_hash=None):
     """
     主函数，处理整个水印流程
+    第二阶段：增加ZK输入数据生成
     
     参数:
     token_id: NFT的tokenId (可选)
@@ -195,6 +351,7 @@ def main(token_id=None, buyer_address=None, sale_hash=None):
     watermark_folder = os.path.join(DATA_DIR, "dataset_watermark")        # data/dataset_watermark/
     watermark_zip_path = os.path.join(DATA_DIR, "dataset_watermark.zip")  # data/dataset_watermark.zip
     watermark_info_path = os.path.join(DATA_DIR, "watermark_info.json")   # 保存水印信息
+    zk_input_dir = os.path.join(DATA_DIR, "zk_inputs")                    # ZK输入数据目录
     
     # 检查输入文件是否存在
     if not os.path.isfile(dataset_zip_path):
@@ -259,6 +416,43 @@ def main(token_id=None, buyer_address=None, sale_hash=None):
     processed_count = process_image_folder(dataset_folder, watermark_folder, buy_hash)
     logging.info(f"已为 {processed_count} 个文件添加水印")
     
+    # ============ 第二阶段：生成ZK输入数据 ============
+    logging.info("开始第二阶段：为每张图片生成零知识证明输入数据")
+    
+    supported_formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif']
+    zk_input_files = []
+    
+    # 为每张图片生成独立的ZK输入数据
+    image_files = [f for f in os.listdir(dataset_folder) 
+                   if any(f.lower().endswith(fmt) for fmt in supported_formats)]
+    
+    for file in image_files:
+        original_image = os.path.join(dataset_folder, file)
+        watermarked_image = os.path.join(watermark_folder, file)
+        
+        if os.path.exists(watermarked_image):
+            # 为每张图片生成独立的ZK输入数据
+            zk_input_file = generate_zk_input_data(
+                original_image, 
+                watermarked_image, 
+                buy_hash, 
+                zk_input_dir,
+                image_filename=file  # 传递文件名用于区分
+            )
+            
+            if zk_input_file:
+                zk_input_files.append(zk_input_file)
+                logging.info(f"✅ ZK输入数据生成成功: {os.path.basename(zk_input_file)}")
+            else:
+                logging.warning(f"⚠️  图片 {file} 的ZK输入数据生成失败")
+        else:
+            logging.warning(f"⚠️  未找到图片 {file} 的水印版本")
+    
+    if zk_input_files:
+        logging.info(f"✅ 总共为 {len(zk_input_files)} 张图片生成了ZK输入数据")
+    else:
+        logging.warning("⚠️  未能生成任何ZK输入数据")
+    
     # 4) 保存水印信息到文件，供以后检测使用 - 修改为追加模式
     watermark_record = {
         "buy_hash": buy_hash,
@@ -266,7 +460,8 @@ def main(token_id=None, buyer_address=None, sale_hash=None):
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         "token_id": token_id,
         "buyer_address": buyer_address,
-        "processed_files": processed_count
+        "processed_files": processed_count,
+        "zk_input_files": zk_input_files if 'zk_input_files' in locals() and zk_input_files else []  # 添加ZK输入文件列表
     }
     
     # 检查文件是否存在，如果存在则加载现有数据
@@ -326,6 +521,13 @@ def main(token_id=None, buyer_address=None, sale_hash=None):
                 zipf.write(fullpath, arcname)
     
     logging.info(f"已生成水印压缩包: {watermark_zip_path}")
+    
+    # ============ 第二阶段完成总结 ============
+    logging.info("🎉 水印嵌入和ZK输入数据生成完成！")
+    logging.info("✅ 第一阶段：统一水印处理 - 完成")
+    logging.info("✅ 第二阶段：ZK输入数据生成 - 完成")
+    logging.info("📋 后续步骤：在数据集登记时进行分块和证明生成")
+    
     return True
 
 if __name__ == "__main__":

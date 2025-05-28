@@ -439,6 +439,7 @@ class PowerOfTauGenerator:
             logging.info(f"初始Powers of Tau文件生成完成: {initial_ptau}")
             
             return {
+                "status": "success",
                 "initial_ptau_path": initial_ptau,
                 "user_temp_dir": user_temp_dir,
                 "constraint_power": constraint_power,

@@ -306,3 +306,179 @@ NFTPurchased => operator=0x70997970C51812dc3A010C7d01b50e0d17dc79C8, tokenId=9, 
  [92m=== purchaseNFT 成功, 您已获得访问权. ===[0m
 ===== 购买流程成功完成 =====
 最终加密CID: shskWD/iEX6H0B6+GM6CQz8QmRJoVPdlBZ2ULPIs59ZBOZBmlYzrS6U3Gc5s8SgZxohbgXPzBgQ+cQyYjQT0gWmTl3ONbaImJOUZCZMT/io4z3Nd9oV5Kb6aJ4bNy5I9G7cpA1u9oHopE+cPawnFIEluanQ9wzE/M6CYQ68fZrPCWA4MrMNznbKcueHTSxhn6U9k2Q3d7RJn9cNdzROs6ha1fWWhVMkV6Vgd2Et8A68dgp+LeQ1wXhkNjKpyqLWVn3QArl/QKLH+D7YkWq2mLC7dOYhmmSm9jHO4qjjAhn1c0pTOHt+aHnptjqCzV9MxFgw8Ygh2gnC1D3p7jmWD/Q==
+
+
+===== 新购买流程开始: 2025-05-27 17:42:30 =====
+tokenId=9, buyerAddr=0x90F79bf6EB2c4f870365E785982E1f101E93b906
+Check listing 输出:
+ListingStatus=Listed, price=1
+metadataURL=http://127.0.0.1:8080/ipfs/QmNVRvSoxtabLnf4VVS7Tc9rLQB2vtpm2VVhPZweeeDg8j
+请求转账: 1.0 ETH 到 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+在历史区块 35 找到匹配交易，hash=cd2c3ac3a5c3ef155518bdcd872da5e423925ce03b7396909ef2280acf7031bd
+加密的 zip_cid=Vfy6iaBKZCIn+g69dl5xoqRR7xEaZoqu0P8cz4duOVM6O8nzfWrrdLQRdmbXRMNXNu2e+/1hZpEMmFv2/f4KHGXKRMcQdWf5j9HPETuRBZ4xfvoxpR5MK9f4ycVpk+3Llt7gvp7qmON4WWwafExotyfNcwrsNUqzCU1IQS/+I6Y8ZPRUNo1z/Jj7Wfa9ewY16sAqOQbbcN9/HIBem0YFxf5WEX0TGk9FXlK3kDrcGArD22ejRaCy/Xb79YcRCeZHr4TfENIyVlmGQusuICAcUdr7s1xRHnlgBeQ+bM4ZF13m3iicg7+296K43ybZZWGR/khSENK9fFEJ5MYfuJm9Og==
+解密脚本输出:
+Decrypted CID: QmQNfqXfsfjJs2tCF92HN7Qjg2p2a5e9GfLoP2tuBf6E1B
+已成功下载: CID=QmQNfqXfsfjJs2tCF92HN7Qjg2p2a5e9GfLoP2tuBf6E1B => /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/features/../data/dataset.zip
+水印生成完毕，已生成 dataset_watermark.zip
+[uploadForBuyer]输出:
+开始执行 uploadForBuyer.js 脚本
+使用公钥路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/temp_public_key.pem
+成功读取公钥，长度为 450 字符
+尝试读取的数据集路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/data/dataset_watermark.zip
+找到水印数据集文件，大小为 39811 字节
+正在准备连接IPFS...
+成功连接到IPFS API
+正在读取水印数据集文件...
+上传数据集到IPFS (大小: 39811 字节)...
+数据集上传成功，CID: QmSkCfgmUkvLiaNwfS4rzKHrtw8biLpv669U1q8YzKy6CD
+使用买家公钥加密CID...
+准备加密数据: QmSkCfgmUkvLiaNwfS4rzKHrtw8biLpv669U1q8YzKy6CD
+加密成功，结果长度: 344 字符
+
+===== Final Output =====
+rawCid=QmSkCfgmUkvLiaNwfS4rzKHrtw8biLpv669U1q8YzKy6CD
+encryptedCid=g9Rf12cvcSQF1/tiQY/T9krcFA5BJphJ7uuJZSCkyJpC1DLncFUzueVNUrYLKBDq4qea1Gtl965vSLrQzUECEWN0uwejNDleNSbLS4y/pmOTrjr+hodgVp+p/xXGpAcPdaEN7sqtQ8l4e+fQaOxnPCGqXN75gSAH7EWT0w6j45KWCvOyvWq9MYBp8dWRLxTiGE4nVJnows3LVVG5zXC+LlQ8BT/dsf0X5DUYX/yiMaie0EuyIJpue7nDMhKH7dfmnaOqsPjtuBrzb5ySyUb3LDisvj2ffKIKujiEtZj7uEzN5jb1YU7vAaQsvbnLD3b7rW2RJN+4JUmGRcqtafjszg==
+成功加密并上传, encryptedCid = g9Rf12cvcSQF1/tiQY/T9krcFA5BJphJ7uuJZSCkyJpC1DLncFUzueVNUrYLKBDq4qea1Gtl965vSLrQzUECEWN0uwejNDleNSbLS4y/pmOTrjr+hodgVp+p/xXGpAcPdaEN7sqtQ8l4e+fQaOxnPCGqXN75gSAH7EWT0w6j45KWCvOyvWq9MYBp8dWRLxTiGE4nVJnows3LVVG5zXC+LlQ8BT/dsf0X5DUYX/yiMaie0EuyIJpue7nDMhKH7dfmnaOqsPjtuBrzb5ySyUb3LDisvj2ffKIKujiEtZj7uEzN5jb1YU7vAaQsvbnLD3b7rW2RJN+4JUmGRcqtafjszg==
+购买输出: 开始轮询区块，查找 bob->0x70997970C51812dc3A010C7d01b50e0d17dc79C8 转账金额=1000000000000000000 wei
+在区块 45 找到匹配交易,hash=3342a872571f64644a80552620a96b1d6098b05c9147b80b3dfc556a56158e70
+确认收到来自 0x90F79bf6EB2c4f870365E785982E1f101E93b906 的付款, 交易hash=3342a872571f64644a80552620a96b1d6098b05c9147b80b3dfc556a56158e70
+
+=== 调用 purchaseNFT(tokenId=9, buyer=0x90F79bf6EB2c4f870365E785982E1f101E93b906, encCid=...) ===
+purchaseNFT 交易哈希: f7940732deb2c6bfd620dbc637647504cbb5a2db10aefbc545adbbe9faea4f92
+NFTPurchased => operator=0x70997970C51812dc3A010C7d01b50e0d17dc79C8, tokenId=9, dataOwner=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC, ethPaid=1 ETH, encCid=g9Rf12cvcSQF1/tiQY/T9krcFA5BJphJ7uuJZSCkyJpC1DLncFUzueVNUrYLKBDq4qea1Gtl965vSLrQzUECEWN0uwejNDleNSbLS4y/pmOTrjr+hodgVp+p/xXGpAcPdaEN7sqtQ8l4e+fQaOxnPCGqXN75gSAH7EWT0w6j45KWCvOyvWq9MYBp8dWRLxTiGE4nVJnows3LVVG5zXC+LlQ8BT/dsf0X5DUYX/yiMaie0EuyIJpue7nDMhKH7dfmnaOqsPjtuBrzb5ySyUb3LDisvj2ffKIKujiEtZj7uEzN5jb1YU7vAaQsvbnLD3b7rW2RJN+4JUmGRcqtafjszg==
+
+ [92m=== purchaseNFT 成功, 您已获得访问权. ===[0m
+===== 购买流程成功完成 =====
+最终加密CID: g9Rf12cvcSQF1/tiQY/T9krcFA5BJphJ7uuJZSCkyJpC1DLncFUzueVNUrYLKBDq4qea1Gtl965vSLrQzUECEWN0uwejNDleNSbLS4y/pmOTrjr+hodgVp+p/xXGpAcPdaEN7sqtQ8l4e+fQaOxnPCGqXN75gSAH7EWT0w6j45KWCvOyvWq9MYBp8dWRLxTiGE4nVJnows3LVVG5zXC+LlQ8BT/dsf0X5DUYX/yiMaie0EuyIJpue7nDMhKH7dfmnaOqsPjtuBrzb5ySyUb3LDisvj2ffKIKujiEtZj7uEzN5jb1YU7vAaQsvbnLD3b7rW2RJN+4JUmGRcqtafjszg==
+
+
+===== 新购买流程开始: 2025-05-27 22:38:08 =====
+tokenId=10, buyerAddr=0x976ea74026e726554db657fa54763abd0c3a0aa9
+Check listing 输出:
+ListingStatus=Listed, price=1
+metadataURL=http://127.0.0.1:8080/ipfs/QmcbXaE4nHXBajkWHwo7A1mVWiX9ANJa9AMZPvJmF8wKYa
+请求转账: 1.0 ETH 到 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+在历史区块 50 找到匹配交易，hash=cf7f54fa7d1025d89f1c5809e0de1b00265f4adcd440c277fdda8df075632667
+加密的 zip_cid=TsutNStR8vw6YcAZiKdhjDbCQZkfHoIVLYWFE940YtJFuNtAVuHKBtGN2qGlBxkUf/felYg9n87eDlKzIbkkyzO68mfYRRbMRyQ2EdDTzBORoyyWSmI7QhIb0Ke3JrLKGD8aHazdsbbGTZKSjjmaxWQzcR7BywcU/MOemr/GP0ucRFgikIch79BPy3DHUFpClds5qFv1lqpudiEMuRaBrTsgAxWrH4qQgzDS6wpAbq2TcG/q+NzHbOoOFWQyLjAN8D/zGcpXBRRg0VDYqw93/rcexvAcNksi5I9/NLRwPpo0OSRNO5kwDVxyIQN2b7kMNg2cpNTp/bGBIZR5wPeNWA==
+解密脚本输出:
+Decrypted CID: QmVV8kPqA2rjHG3GRWVKL63w43DfAddtc2LQYRdamP3txx
+已成功下载: CID=QmVV8kPqA2rjHG3GRWVKL63w43DfAddtc2LQYRdamP3txx => /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/features/../data/dataset.zip
+水印生成完毕，已生成 dataset_watermark.zip
+[uploadForBuyer]输出:
+开始执行 uploadForBuyer.js 脚本
+使用公钥路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/temp_public_key.pem
+成功读取公钥，长度为 450 字符
+尝试读取的数据集路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/data/dataset_watermark.zip
+找到水印数据集文件，大小为 26747 字节
+正在准备连接IPFS...
+成功连接到IPFS API
+正在读取水印数据集文件...
+上传数据集到IPFS (大小: 26747 字节)...
+数据集上传成功，CID: QmWXybm3V8GM2JcLc9ExkfPouueam8j4nXCgisXE25MTrb
+使用买家公钥加密CID...
+准备加密数据: QmWXybm3V8GM2JcLc9ExkfPouueam8j4nXCgisXE25MTrb
+加密成功，结果长度: 344 字符
+
+===== Final Output =====
+rawCid=QmWXybm3V8GM2JcLc9ExkfPouueam8j4nXCgisXE25MTrb
+encryptedCid=DPVer3fHjObYo72rR/jkBTIyAO4MaWjjsaxLVmc+KSUAa51mu0nls26hYof7rDM6eDtaT3E5ybcY4mHjUTjEvk94r4Lj5U9n0EQrZwLcGD2OAtB6IT/6LYNKpt6/zO8ob2h30cjLDSsrXrfcbO4EzFZoh+uxS6Y/jGr/AsQbltdrkbXsyWaLbiV17eXxeW+9C9hypeq/8q0GVpWXiMzrH3q8jxUDRpJ7HCT8JApkwrodJT1X6A3fxijS227lc4zAk+CBpvpRExQJa2pzgdYpjg/Ig5clM0eupxxOQ88r4wHHDEXJ+QTjhoZYMQmteYil9U10CeYQisFqFOsNgotphg==
+成功加密并上传, encryptedCid = DPVer3fHjObYo72rR/jkBTIyAO4MaWjjsaxLVmc+KSUAa51mu0nls26hYof7rDM6eDtaT3E5ybcY4mHjUTjEvk94r4Lj5U9n0EQrZwLcGD2OAtB6IT/6LYNKpt6/zO8ob2h30cjLDSsrXrfcbO4EzFZoh+uxS6Y/jGr/AsQbltdrkbXsyWaLbiV17eXxeW+9C9hypeq/8q0GVpWXiMzrH3q8jxUDRpJ7HCT8JApkwrodJT1X6A3fxijS227lc4zAk+CBpvpRExQJa2pzgdYpjg/Ig5clM0eupxxOQ88r4wHHDEXJ+QTjhoZYMQmteYil9U10CeYQisFqFOsNgotphg==
+购买输出: 开始轮询区块，查找 bob->0x70997970C51812dc3A010C7d01b50e0d17dc79C8 转账金额=1000000000000000000 wei
+在区块 50 找到匹配交易,hash=cf7f54fa7d1025d89f1c5809e0de1b00265f4adcd440c277fdda8df075632667
+确认收到来自 0x976EA74026E726554dB657fA54763abd0C3a0aa9 的付款, 交易hash=cf7f54fa7d1025d89f1c5809e0de1b00265f4adcd440c277fdda8df075632667
+
+=== 调用 purchaseNFT(tokenId=10, buyer=0x976EA74026E726554dB657fA54763abd0C3a0aa9, encCid=...) ===
+purchaseNFT 交易哈希: 6b2c8c3040bc1dc665b7574df2d92a764b0f800ae137d0a0f528f29266a6de6b
+NFTPurchased => operator=0x70997970C51812dc3A010C7d01b50e0d17dc79C8, tokenId=10, dataOwner=0x90F79bf6EB2c4f870365E785982E1f101E93b906, ethPaid=1 ETH, encCid=DPVer3fHjObYo72rR/jkBTIyAO4MaWjjsaxLVmc+KSUAa51mu0nls26hYof7rDM6eDtaT3E5ybcY4mHjUTjEvk94r4Lj5U9n0EQrZwLcGD2OAtB6IT/6LYNKpt6/zO8ob2h30cjLDSsrXrfcbO4EzFZoh+uxS6Y/jGr/AsQbltdrkbXsyWaLbiV17eXxeW+9C9hypeq/8q0GVpWXiMzrH3q8jxUDRpJ7HCT8JApkwrodJT1X6A3fxijS227lc4zAk+CBpvpRExQJa2pzgdYpjg/Ig5clM0eupxxOQ88r4wHHDEXJ+QTjhoZYMQmteYil9U10CeYQisFqFOsNgotphg==
+
+ [92m=== purchaseNFT 成功, 您已获得访问权. ===[0m
+===== 购买流程成功完成 =====
+最终加密CID: DPVer3fHjObYo72rR/jkBTIyAO4MaWjjsaxLVmc+KSUAa51mu0nls26hYof7rDM6eDtaT3E5ybcY4mHjUTjEvk94r4Lj5U9n0EQrZwLcGD2OAtB6IT/6LYNKpt6/zO8ob2h30cjLDSsrXrfcbO4EzFZoh+uxS6Y/jGr/AsQbltdrkbXsyWaLbiV17eXxeW+9C9hypeq/8q0GVpWXiMzrH3q8jxUDRpJ7HCT8JApkwrodJT1X6A3fxijS227lc4zAk+CBpvpRExQJa2pzgdYpjg/Ig5clM0eupxxOQ88r4wHHDEXJ+QTjhoZYMQmteYil9U10CeYQisFqFOsNgotphg==
+
+
+===== 新购买流程开始: 2025-05-28 00:19:31 =====
+tokenId=10, buyerAddr=0x976EA74026E726554dB657fA54763abd0C3a0aa9
+Check listing 输出:
+ListingStatus=Listed, price=1
+metadataURL=http://127.0.0.1:8080/ipfs/QmcbXaE4nHXBajkWHwo7A1mVWiX9ANJa9AMZPvJmF8wKYa
+请求转账: 1.0 ETH 到 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+在历史区块 50 找到匹配交易，hash=cf7f54fa7d1025d89f1c5809e0de1b00265f4adcd440c277fdda8df075632667
+加密的 zip_cid=TsutNStR8vw6YcAZiKdhjDbCQZkfHoIVLYWFE940YtJFuNtAVuHKBtGN2qGlBxkUf/felYg9n87eDlKzIbkkyzO68mfYRRbMRyQ2EdDTzBORoyyWSmI7QhIb0Ke3JrLKGD8aHazdsbbGTZKSjjmaxWQzcR7BywcU/MOemr/GP0ucRFgikIch79BPy3DHUFpClds5qFv1lqpudiEMuRaBrTsgAxWrH4qQgzDS6wpAbq2TcG/q+NzHbOoOFWQyLjAN8D/zGcpXBRRg0VDYqw93/rcexvAcNksi5I9/NLRwPpo0OSRNO5kwDVxyIQN2b7kMNg2cpNTp/bGBIZR5wPeNWA==
+解密脚本输出:
+Decrypted CID: QmVV8kPqA2rjHG3GRWVKL63w43DfAddtc2LQYRdamP3txx
+已成功下载: CID=QmVV8kPqA2rjHG3GRWVKL63w43DfAddtc2LQYRdamP3txx => /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/features/../data/dataset.zip
+水印生成完毕，已生成 dataset_watermark.zip
+[uploadForBuyer]输出:
+开始执行 uploadForBuyer.js 脚本
+使用公钥路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/temp_public_key.pem
+成功读取公钥，长度为 450 字符
+尝试读取的数据集路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/data/dataset_watermark.zip
+找到水印数据集文件，大小为 26735 字节
+正在准备连接IPFS...
+成功连接到IPFS API
+正在读取水印数据集文件...
+上传数据集到IPFS (大小: 26735 字节)...
+数据集上传成功，CID: QmQfTJDgQMJLSsgeyQZBLqca8akjpGpP8R453grcHDZdmr
+使用买家公钥加密CID...
+准备加密数据: QmQfTJDgQMJLSsgeyQZBLqca8akjpGpP8R453grcHDZdmr
+加密成功，结果长度: 344 字符
+
+===== Final Output =====
+rawCid=QmQfTJDgQMJLSsgeyQZBLqca8akjpGpP8R453grcHDZdmr
+encryptedCid=tNowe6BflniVN+Y7hCRcS+iMLN6K4YcStBpoK6wpO0xg1luWpqTY+rMSZvbV7i7Dcg0Gf3toYEYDBsOAqHriO/KP0+ysO6tRAazD2jiL6tu6p1QkMlSafPOwfqGrlP/RpY/l/BYhyA8Hv8WfPY46aGPdKlGlJ2YDqEfN8dgLW1obQBBuznHFctf+2Vp62omwrKanbbCYj5xuMAHgjo2dCVXOKCI6MzgzOsRCdWrj10i3QaUNwn0ljBjU5dB9fIsHM0w2VaefmGbWKVRu5dvxfDmUBgN5cdUm/9sGia+CIv/x+go9tcBvLQPcuGccGdf2vH3kiwCS5sa4VcBhy+zBsA==
+成功加密并上传, encryptedCid = tNowe6BflniVN+Y7hCRcS+iMLN6K4YcStBpoK6wpO0xg1luWpqTY+rMSZvbV7i7Dcg0Gf3toYEYDBsOAqHriO/KP0+ysO6tRAazD2jiL6tu6p1QkMlSafPOwfqGrlP/RpY/l/BYhyA8Hv8WfPY46aGPdKlGlJ2YDqEfN8dgLW1obQBBuznHFctf+2Vp62omwrKanbbCYj5xuMAHgjo2dCVXOKCI6MzgzOsRCdWrj10i3QaUNwn0ljBjU5dB9fIsHM0w2VaefmGbWKVRu5dvxfDmUBgN5cdUm/9sGia+CIv/x+go9tcBvLQPcuGccGdf2vH3kiwCS5sa4VcBhy+zBsA==
+购买输出: 开始轮询区块，查找 bob->0x70997970C51812dc3A010C7d01b50e0d17dc79C8 转账金额=1000000000000000000 wei
+在区块 54 找到匹配交易,hash=5d950a3e578c222d35e104dffa75cce0aaef8a2984c62a049fcf95cccf3553d3
+确认收到来自 0x976EA74026E726554dB657fA54763abd0C3a0aa9 的付款, 交易hash=5d950a3e578c222d35e104dffa75cce0aaef8a2984c62a049fcf95cccf3553d3
+
+=== 调用 purchaseNFT(tokenId=10, buyer=0x976EA74026E726554dB657fA54763abd0C3a0aa9, encCid=...) ===
+purchaseNFT 交易哈希: 0733eaddb8a93a23869780b49c773c7afe12204b91d63761dac045129686d715
+NFTPurchased => operator=0x70997970C51812dc3A010C7d01b50e0d17dc79C8, tokenId=10, dataOwner=0x90F79bf6EB2c4f870365E785982E1f101E93b906, ethPaid=1 ETH, encCid=tNowe6BflniVN+Y7hCRcS+iMLN6K4YcStBpoK6wpO0xg1luWpqTY+rMSZvbV7i7Dcg0Gf3toYEYDBsOAqHriO/KP0+ysO6tRAazD2jiL6tu6p1QkMlSafPOwfqGrlP/RpY/l/BYhyA8Hv8WfPY46aGPdKlGlJ2YDqEfN8dgLW1obQBBuznHFctf+2Vp62omwrKanbbCYj5xuMAHgjo2dCVXOKCI6MzgzOsRCdWrj10i3QaUNwn0ljBjU5dB9fIsHM0w2VaefmGbWKVRu5dvxfDmUBgN5cdUm/9sGia+CIv/x+go9tcBvLQPcuGccGdf2vH3kiwCS5sa4VcBhy+zBsA==
+
+ [92m=== purchaseNFT 成功, 您已获得访问权. ===[0m
+===== 购买流程成功完成 =====
+最终加密CID: tNowe6BflniVN+Y7hCRcS+iMLN6K4YcStBpoK6wpO0xg1luWpqTY+rMSZvbV7i7Dcg0Gf3toYEYDBsOAqHriO/KP0+ysO6tRAazD2jiL6tu6p1QkMlSafPOwfqGrlP/RpY/l/BYhyA8Hv8WfPY46aGPdKlGlJ2YDqEfN8dgLW1obQBBuznHFctf+2Vp62omwrKanbbCYj5xuMAHgjo2dCVXOKCI6MzgzOsRCdWrj10i3QaUNwn0ljBjU5dB9fIsHM0w2VaefmGbWKVRu5dvxfDmUBgN5cdUm/9sGia+CIv/x+go9tcBvLQPcuGccGdf2vH3kiwCS5sa4VcBhy+zBsA==
+
+
+===== 新购买流程开始: 2025-05-28 10:43:13 =====
+tokenId=13, buyerAddr=0x90F79bf6EB2c4f870365E785982E1f101E93b906
+Check listing 输出:
+ListingStatus=Listed, price=1
+metadataURL=http://127.0.0.1:8080/ipfs/QmasKC2Ur4FwpcexxbnD7TNWACsUaf5saZ3zTQo1ZwGrTd
+请求转账: 1.0 ETH 到 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+在历史区块 61 找到匹配交易，hash=c71907b6ec8d647af702f617d99d778e4da3b98d451501cf3dec124450c6ea8d
+加密的 zip_cid=g1KdSk+4M3TQlr/zV0VUFBGJQUHNwbk4QaZa4L3K21hm4A0Am0qMIhOy5NksD5mx+xaNWQfjp3SvoY3pdX+zD50zaxD1lDyirNzPEeHq7sGf9k41r8/c2A+kF2+1g46cjBW/3c5zIywZJbkFRnYaqETpy9r0gUxWBqse9tTMOtFY82uGlou+Y2nbAIIwoLgcT/chQpTAgvSup3GlKVnwBVJAn2sfBQeaEUOP3rphMr6DZUGmX2/D+EnkgM/bPTCLgqNF6yHHLjYHOUmgUD86zhpcByVHrh6aqh9hqlTEnxH+Nw+0ZtRrSGez13GC1NxMEYox51lcbId6cP+FCHngoQ==
+解密脚本输出:
+Decrypted CID: Qme3w2fo9fd7ZaRDqxkjxMsqQfrfjen5xsCvFvGrLRzxup
+已成功下载: CID=Qme3w2fo9fd7ZaRDqxkjxMsqQfrfjen5xsCvFvGrLRzxup => /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/features/../data/dataset.zip
+水印生成完毕，已生成 dataset_watermark.zip
+[uploadForBuyer]输出:
+开始执行 uploadForBuyer.js 脚本
+使用公钥路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/temp_public_key.pem
+成功读取公钥，长度为 450 字符
+尝试读取的数据集路径: /Users/dylan/Code_Projects/Python_Projects/image_similarity/my_agent_project/data/dataset_watermark.zip
+找到水印数据集文件，大小为 9544 字节
+正在准备连接IPFS...
+成功连接到IPFS API
+正在读取水印数据集文件...
+上传数据集到IPFS (大小: 9544 字节)...
+数据集上传成功，CID: QmSZvxnbQiFLoomGUGMrDxdqZX5Lfx3WNM2DZp8fekgkNM
+使用买家公钥加密CID...
+准备加密数据: QmSZvxnbQiFLoomGUGMrDxdqZX5Lfx3WNM2DZp8fekgkNM
+加密成功，结果长度: 344 字符
+
+===== Final Output =====
+rawCid=QmSZvxnbQiFLoomGUGMrDxdqZX5Lfx3WNM2DZp8fekgkNM
+encryptedCid=IAZDGk1xs97UhtM1LONTVJxLzk7y/p7y4u/KSBXhAP9/hD8xLAcVWqCLRKmOb2duhLgYApRyuosSX2wmYn1HIBPnYgW3zg0hf242WdcM3sPoLTz/RBDioKL2IFtEgUEcrr9TfRYjIWdponTerKNLsTHrsKPMFAC/SAcVcFXQCtHufOE4v9a47QKhF5gBJUbtTzf+YH0xYBgyWQjco8oW3u0dq+b64L4ezPr3UC19rNRPuCsG11pH89KvqoKPaMvOKSMn2vw6wCi0iPZI1YYD6zuN7C6OVQ9D/Juo2XeTrijFeVW8swr5u4gTJ4eggO005IhorrUj+o++pQl5E6Fg0Q==
+成功加密并上传, encryptedCid = IAZDGk1xs97UhtM1LONTVJxLzk7y/p7y4u/KSBXhAP9/hD8xLAcVWqCLRKmOb2duhLgYApRyuosSX2wmYn1HIBPnYgW3zg0hf242WdcM3sPoLTz/RBDioKL2IFtEgUEcrr9TfRYjIWdponTerKNLsTHrsKPMFAC/SAcVcFXQCtHufOE4v9a47QKhF5gBJUbtTzf+YH0xYBgyWQjco8oW3u0dq+b64L4ezPr3UC19rNRPuCsG11pH89KvqoKPaMvOKSMn2vw6wCi0iPZI1YYD6zuN7C6OVQ9D/Juo2XeTrijFeVW8swr5u4gTJ4eggO005IhorrUj+o++pQl5E6Fg0Q==
+购买输出: 开始轮询区块，查找 bob->0x70997970C51812dc3A010C7d01b50e0d17dc79C8 转账金额=1000000000000000000 wei
+在区块 61 找到匹配交易,hash=c71907b6ec8d647af702f617d99d778e4da3b98d451501cf3dec124450c6ea8d
+确认收到来自 0x90F79bf6EB2c4f870365E785982E1f101E93b906 的付款, 交易hash=c71907b6ec8d647af702f617d99d778e4da3b98d451501cf3dec124450c6ea8d
+
+=== 调用 purchaseNFT(tokenId=13, buyer=0x90F79bf6EB2c4f870365E785982E1f101E93b906, encCid=...) ===
+purchaseNFT 交易哈希: c923da26892f69bef07a58eb7a2668e09e67341bd9400f6207050ac715a53124
+NFTPurchased => operator=0x70997970C51812dc3A010C7d01b50e0d17dc79C8, tokenId=13, dataOwner=0x976EA74026E726554dB657fA54763abd0C3a0aa9, ethPaid=1 ETH, encCid=IAZDGk1xs97UhtM1LONTVJxLzk7y/p7y4u/KSBXhAP9/hD8xLAcVWqCLRKmOb2duhLgYApRyuosSX2wmYn1HIBPnYgW3zg0hf242WdcM3sPoLTz/RBDioKL2IFtEgUEcrr9TfRYjIWdponTerKNLsTHrsKPMFAC/SAcVcFXQCtHufOE4v9a47QKhF5gBJUbtTzf+YH0xYBgyWQjco8oW3u0dq+b64L4ezPr3UC19rNRPuCsG11pH89KvqoKPaMvOKSMn2vw6wCi0iPZI1YYD6zuN7C6OVQ9D/Juo2XeTrijFeVW8swr5u4gTJ4eggO005IhorrUj+o++pQl5E6Fg0Q==
+
+ [92m=== purchaseNFT 成功, 您已获得访问权. ===[0m
+===== 购买流程成功完成 =====
+最终加密CID: IAZDGk1xs97UhtM1LONTVJxLzk7y/p7y4u/KSBXhAP9/hD8xLAcVWqCLRKmOb2duhLgYApRyuosSX2wmYn1HIBPnYgW3zg0hf242WdcM3sPoLTz/RBDioKL2IFtEgUEcrr9TfRYjIWdponTerKNLsTHrsKPMFAC/SAcVcFXQCtHufOE4v9a47QKhF5gBJUbtTzf+YH0xYBgyWQjco8oW3u0dq+b64L4ezPr3UC19rNRPuCsG11pH89KvqoKPaMvOKSMn2vw6wCi0iPZI1YYD6zuN7C6OVQ9D/Juo2XeTrijFeVW8swr5u4gTJ4eggO005IhorrUj+o++pQl5E6Fg0Q==

@@ -329,21 +329,50 @@ def register_data(metadata_url: str, user_address: str = None):
                 # 在后台生成零知识证明（这里先不阻塞，返回状态让用户知道）
                 logging.info("开始后台生成Powers of Tau和零知识证明")
                 
-                # 准备Powers of Tau初始文件，等待用户贡献
-                zk_proof_result = prepare_poweroftau_for_user_contribution(dataset_folder, ptau_info)
-                logging.info(f"零知识证明生成成功: {zk_proof_result}")
+                # ✅ 第三阶段：先进行数据分块处理
+                logging.info("第三阶段：开始数据分块处理")
+                from .stage3_chunk_and_proof import process_watermarked_dataset_registration
                 
-                # 返回侵权状态和零知识证明结果
-                return {
-                    "status": "copyright_violation",
-                    "message": violation_msg,
-                    "background_message": background_msg,
-                    "zk_proof_result": zk_proof_result,
-                    "ptau_info": ptau_info,
-                    "requires_user_contribution": True,  # 新增：标识需要用户在浏览器中完成贡献
-                    "user_id": user_id,
-                    "constraint_power": ptau_info["optimal_config"]["power"]
-                }
+                # 首先确定检测到的买家哈希值
+                # 从水印检测输出中提取buy_hash
+                watermark_lines = wm_output.split('\n')
+                detected_buy_hash = None
+                
+                for line in watermark_lines:
+                    if "提取的哈希值:" in line or "匹配的预期哈希:" in line:
+                        # 提取哈希值 (格式: "提取的哈希值: abcd1234...")
+                        hash_match = re.search(r'[a-f0-9]{64}', line)
+                        if hash_match:
+                            detected_buy_hash = hash_match.group(0)
+                            break
+                
+                if not detected_buy_hash:
+                    raise ValueError("无法从水印检测结果中提取买家哈希值")
+                
+                logging.info(f"检测到的买家哈希值: {detected_buy_hash[:16]}...")
+                
+                # 执行第三阶段分块处理
+                chunking_result = process_watermarked_dataset_registration(
+                    buy_hash=detected_buy_hash,
+                    optimal_config=optimal_config
+                )
+                
+                # ✅ 修复：stage3现在返回"copyright_violation"状态，这是正常的！
+                if chunking_result["status"] == "copyright_violation":
+                    # 这是正确的返回状态，表示分块完成且Powers of Tau初始文件已生成
+                    logging.info("✅ 第三阶段处理完成，Powers of Tau初始文件已生成")
+                    logging.info("✅ 等待用户在浏览器中贡献随机性")
+                    
+                    # 直接返回stage3的结果，因为它已经包含了所有必要的信息
+                    return chunking_result
+                    
+                elif chunking_result["status"] in ["stage3_failed", "chunking_failed"]:
+                    raise RuntimeError(f"第三阶段处理失败: {chunking_result.get('message', 'Unknown error')}")
+                
+                else:
+                    # 其他未知状态，记录警告但不抛出异常
+                    logging.warning(f"第三阶段返回未知状态: {chunking_result['status']}")
+                    return chunking_result
                 
             except Exception as zk_e:
                 logging.error(f"零知识证明生成失败: {zk_e}")

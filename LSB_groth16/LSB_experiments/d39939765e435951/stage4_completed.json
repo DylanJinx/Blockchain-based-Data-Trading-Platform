@@ -1,0 +1,35 @@
+{
+  "user_id": "D3993976",
+  "buyer_hash": "d39939765e435951",
+  "completion_time": 1748403318.345272,
+  "proof_results": {
+    "status": "success",
+    "experiment_dir": "/Users/dylan/Code_Projects/Python_Projects/image_similarity/LSB_groth16/LSB_experiments/d39939765e435951",
+    "experiment_name": "d39939765e435951",
+    "buy_hash": "d39939765e435951ea3bbb5cf620368d4fd1b4562c28e41e311e9dceab436112",
+    "chunk_pixel_size": 29,
+    "constraint_power": 16,
+    "total_time": 692.6015830039978,
+    "proof_results": {
+      "B_witness": {
+        "duration": 375.54804968833923,
+        "status": "success"
+      },
+      "C_zkey": {
+        "duration": 37.44288492202759,
+        "status": "success"
+      },
+      "D_proof": {
+        "duration": 221.20976996421814,
+        "status": "success"
+      }
+    },
+    "verification_results": {
+      "duration": 58.180394887924194,
+      "status": "success",
+      "proof_files_generated": 318,
+      "public_files_generated": 318
+    }
+  },
+  "status": "completed"
+}
