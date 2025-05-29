@@ -22,7 +22,7 @@ BDTP combines **Solidity smart contracts, IPFS, ZK‑BAR, XRID and an LLM‑powe
 
 ## Architecture
 
-![平台架构图](docs/imgs/architecture.png)
+![Platform Overview](docs/imgs/数据交易平台架构.bmp)
 
 The system is layered as follows:
 
